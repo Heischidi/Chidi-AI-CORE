@@ -1,0 +1,12 @@
+node_modules/
+.next/
+dist/
+.env
+.env.local
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+alembic/versions/*
+!alembic/versions/.keep
+.DS_Store
