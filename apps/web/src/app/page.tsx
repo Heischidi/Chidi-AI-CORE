@@ -24,7 +24,7 @@ export default function LandingPage() {
             <Link href="/login" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
               Sign In
             </Link>
-            <Link href="/login?mode=signup" className="relative group">
+            <Link href="/signup" className="relative group">
               <div className="absolute -inset-0.5 bg-linear-to-r from-emerald-500 to-teal-600 rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-200" />
               <div className="relative px-5 py-2.5 bg-slate-950 rounded-lg leading-none flex items-center">
                 <span className="text-sm font-medium text-white group-hover:text-emerald-200 transition duration-200">
@@ -53,7 +53,7 @@ export default function LandingPage() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/login?mode=signup" className="w-full sm:w-auto px-8 py-4 bg-white text-slate-950 rounded-xl font-bold text-lg hover:scale-105 transition-transform duration-200 shadow-xl shadow-white/10 flex items-center justify-center gap-2">
+            <Link href="/signup" className="w-full sm:w-auto px-8 py-4 bg-white text-slate-950 rounded-xl font-bold text-lg hover:scale-105 transition-transform duration-200 shadow-xl shadow-white/10 flex items-center justify-center gap-2">
               Create Your Agent
               <ArrowRight className="w-5 h-5" />
             </Link>
