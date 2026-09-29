@@ -48,7 +48,7 @@ export default function LandingPage() {
             Turn Your Website Into <br /> An AI Agent In Seconds.
           </h1>
           
-          <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-400 mb-12 leading-relaxed">
+          <p className="max-w-2xl mx-auto text-lg sm:text-xl text-slate-200 mb-12 leading-relaxed">
             Chidi AI automatically crawls your website, reads your documentation, and generates a stunning, highly-intelligent chat widget for your customers. Zero coding required.
           </p>
           
@@ -69,7 +69,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Everything you need to automate support</h2>
-            <p className="text-slate-400 max-w-2xl mx-auto">Chidi handles the heavy lifting of RAG (Retrieval-Augmented Generation) so you can focus on your business.</p>
+            <p className="text-slate-200 max-w-2xl mx-auto">Chidi handles the heavy lifting of RAG (Retrieval-Augmented Generation) so you can focus on your business.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -79,7 +79,7 @@ export default function LandingPage() {
                 <Globe className="w-7 h-7 text-emerald-400" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">Automatic Crawling</h3>
-              <p className="text-slate-400 leading-relaxed">
+              <p className="text-slate-200 leading-relaxed">
                 Just drop your website URL. Chidi will automatically crawl every page, extract the text, and chunk the data for machine learning.
               </p>
             </div>
@@ -90,7 +90,7 @@ export default function LandingPage() {
                 <Zap className="w-7 h-7 text-teal-400" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">Vector Embeddings</h3>
-              <p className="text-slate-400 leading-relaxed">
+              <p className="text-slate-200 leading-relaxed">
                 Data is instantly vectorized using Google's text-embedding-004 model and stored in a high-performance Neon Postgres database.
               </p>
             </div>
@@ -101,7 +101,7 @@ export default function LandingPage() {
                 <Code2 className="w-7 h-7 text-green-400" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">Drop-in UI Widget</h3>
-              <p className="text-slate-400 leading-relaxed">
+              <p className="text-slate-200 leading-relaxed">
                 Embed your AI agent anywhere with a single script tag. The widget is fully customizable to match your brand's aesthetics.
               </p>
             </div>
@@ -110,7 +110,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/5 py-12 text-center text-slate-500">
+      <footer className="relative z-10 border-t border-white/5 py-12 text-center text-slate-300">
         <div className="flex items-center justify-center gap-2 mb-4">
           <Bot className="w-5 h-5 text-emerald-500" />
           <span className="font-bold text-slate-300">Chidi AI</span>

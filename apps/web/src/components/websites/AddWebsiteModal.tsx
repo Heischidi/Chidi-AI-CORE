@@ -11,7 +11,6 @@ interface AddWebsiteModalProps {
 
 export default function AddWebsiteModal({ isOpen, onClose, onSuccess }: AddWebsiteModalProps) {
   const [url, setUrl] = useState('');
-  const [maxPages, setMaxPages] = useState('50');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +30,7 @@ export default function AddWebsiteModal({ isOpen, onClose, onSuccess }: AddWebsi
         },
         body: JSON.stringify({
           base_url: url,
-          max_pages: parseInt(maxPages),
+          max_pages: 10000,
           crawl_depth: 3
         })
       });
@@ -41,7 +40,6 @@ export default function AddWebsiteModal({ isOpen, onClose, onSuccess }: AddWebsi
       }
 
       setUrl('');
-      setMaxPages('50');
       onSuccess();
       onClose();
     } catch (err) {
@@ -81,23 +79,7 @@ export default function AddWebsiteModal({ isOpen, onClose, onSuccess }: AddWebsi
               <p className="text-xs text-slate-500 mt-1">We will automatically crawl and index the pages on this domain.</p>
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Max Pages to Crawl</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Layers className="h-5 w-5 text-slate-400" />
-                </div>
-                <input 
-                  type="number" 
-                  min="1"
-                  max="1000"
-                  value={maxPages}
-                  onChange={(e) => setMaxPages(e.target.value)}
-                  className="pl-10 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
-                  required
-                />
-              </div>
-            </div>
+
             
             {error && (
               <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
