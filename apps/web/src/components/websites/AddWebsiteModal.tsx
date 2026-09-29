@@ -72,7 +72,7 @@ export default function AddWebsiteModal({ isOpen, onClose, onSuccess }: AddWebsi
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://example.com"
-                  className="pl-10 w-full rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                  className="pl-10 w-full rounded-xl border border-slate-200 px-4 py-2 text-slate-900 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                   required
                 />
               </div>
