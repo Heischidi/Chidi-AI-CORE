@@ -4,18 +4,18 @@ import { ArrowRight, Bot, Sparkles, Zap, Code2, Globe, Shield, MessageSquareText
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-950 font-sans text-slate-50 selection:bg-indigo-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-950 font-sans text-slate-50 selection:bg-emerald-500/30 overflow-x-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/20 blur-[120px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-600/20 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-teal-600/20 blur-[120px]" />
       </div>
 
       {/* Navbar */}
       <nav className="sticky top-0 z-10 border-b border-white/5 bg-slate-950/50 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
               <Bot className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight text-white">Chidi AI</span>
@@ -25,9 +25,9 @@ export default function LandingPage() {
               Sign In
             </Link>
             <Link href="/login?mode=signup" className="relative group">
-              <div className="absolute -inset-0.5 bg-linear-to-r from-indigo-500 to-purple-600 rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-200" />
+              <div className="absolute -inset-0.5 bg-linear-to-r from-emerald-500 to-teal-600 rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-200" />
               <div className="relative px-5 py-2.5 bg-slate-950 rounded-lg leading-none flex items-center">
-                <span className="text-sm font-medium text-white group-hover:text-indigo-200 transition duration-200">
+                <span className="text-sm font-medium text-white group-hover:text-emerald-200 transition duration-200">
                   Get Started Free
                 </span>
               </div>
@@ -39,7 +39,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <main className="relative z-10 pt-32 pb-20 px-6 sm:pt-40 sm:pb-24 lg:pb-32">
         <div className="max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-indigo-300 mb-8 animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-emerald-300 mb-8 animate-fade-in-up">
             <Sparkles className="w-4 h-4" />
             <span>Powered by Google Gemini 1.5 Flash</span>
           </div>
@@ -74,9 +74,9 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-indigo-500/50 transition-colors group">
-              <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Globe className="w-7 h-7 text-indigo-400" />
+            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-emerald-500/50 transition-colors group">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Globe className="w-7 h-7 text-emerald-400" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">Automatic Crawling</h3>
               <p className="text-slate-400 leading-relaxed">
@@ -85,9 +85,9 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 2 */}
-            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-purple-500/50 transition-colors group">
-              <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Zap className="w-7 h-7 text-purple-400" />
+            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-teal-500/50 transition-colors group">
+              <div className="w-14 h-14 rounded-2xl bg-teal-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Zap className="w-7 h-7 text-teal-400" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">Vector Embeddings</h3>
               <p className="text-slate-400 leading-relaxed">
@@ -96,9 +96,9 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 3 */}
-            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-pink-500/50 transition-colors group">
-              <div className="w-14 h-14 rounded-2xl bg-pink-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Code2 className="w-7 h-7 text-pink-400" />
+            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-green-500/50 transition-colors group">
+              <div className="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Code2 className="w-7 h-7 text-green-400" />
               </div>
               <h3 className="text-xl font-bold text-white mb-3">Drop-in UI Widget</h3>
               <p className="text-slate-400 leading-relaxed">
@@ -112,7 +112,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/5 py-12 text-center text-slate-500">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <Bot className="w-5 h-5 text-indigo-500" />
+          <Bot className="w-5 h-5 text-emerald-500" />
           <span className="font-bold text-slate-300">Chidi AI</span>
         </div>
         <p>© 2026 Chidi AI Core. Built with Next.js, FastAPI & Google Gemini.</p>
