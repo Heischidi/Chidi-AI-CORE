@@ -13,7 +13,7 @@ python-multipart
 pytest
 pytest-asyncio
 httpx
-openai
+google-genai
 sse-starlette
 beautifulsoup4
 PyPDF2

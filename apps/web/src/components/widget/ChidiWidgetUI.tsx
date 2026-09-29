@@ -40,7 +40,7 @@ export default function ChidiWidgetUI({ widgetId }: { widgetId: string }) {
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/v1/widget/config/${widgetId}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/widget/config/${widgetId}`);
         if (!res.ok) throw new Error("Widget not found or disabled");
         const data = await res.json();
         setConfig(data);
@@ -81,7 +81,7 @@ export default function ChidiWidgetUI({ widgetId }: { widgetId: string }) {
       let currentConvId = conversationId;
       if (!currentConvId) {
         // Create conversation
-        const convRes = await fetch(`http://localhost:8000/api/v1/widget/${widgetId}/conversations`, {
+        const convRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/widget/${widgetId}/conversations`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({}) // visitor_id can be added later
@@ -92,7 +92,7 @@ export default function ChidiWidgetUI({ widgetId }: { widgetId: string }) {
       }
 
       // Send message via stream (using SSE)
-      const res = await fetch(`http://localhost:8000/api/v1/widget/${widgetId}/conversations/${currentConvId}/messages`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/widget/${widgetId}/conversations/${currentConvId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text, stream: false }) // Fallback to non-streaming for simplicity in this demo, can enhance with SSE EventSource later

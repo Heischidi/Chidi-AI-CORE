@@ -6,7 +6,7 @@ from sqlalchemy import select
 from app.models.conversation import Conversation, Message
 from app.models.workspace import Workspace
 from app.ai.providers.base import ChatMessage
-from app.ai.providers.openai_compat import OpenAICompatibleProvider
+from app.ai.providers.gemini_provider import GeminiProvider
 from app.ai.chidi_core import ChidiCore
 from app.services.knowledge.rag import RAGContextBuilder
 
@@ -14,7 +14,7 @@ class ConversationService:
     def __init__(self, db: AsyncSession):
         self.db = db
         # In a full implementation, we might resolve the provider from workspace settings
-        self.ai_provider = OpenAICompatibleProvider()
+        self.ai_provider = GeminiProvider()
 
     async def create_conversation(self, workspace_id: uuid.UUID, channel: str = "WEB") -> Conversation:
         conv = Conversation(workspace_id=workspace_id, channel=channel)

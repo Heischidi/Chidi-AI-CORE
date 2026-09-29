@@ -8,7 +8,7 @@ from app.models.knowledge import Website, WebsitePage, Document, KnowledgeChunk
 from app.services.knowledge.crawler import WebsiteCrawler
 from app.services.knowledge.extractor import ExtractorFactory
 from app.services.knowledge.chunker import TextChunker
-from app.services.knowledge.embeddings import OpenAIEmbeddingProvider
+from app.services.knowledge.embeddings import GeminiEmbeddingProvider
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class KnowledgeIngestionService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.chunker = TextChunker()
-        self.embedding_provider = OpenAIEmbeddingProvider()
+        self.embedding_provider = GeminiEmbeddingProvider()
         self.extractor_factory = ExtractorFactory()
 
     async def ingest_website(self, website_id: uuid.UUID):

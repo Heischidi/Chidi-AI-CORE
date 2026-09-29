@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.models.knowledge import KnowledgeChunk
-from app.services.knowledge.embeddings import OpenAIEmbeddingProvider
+from app.services.knowledge.embeddings import GeminiEmbeddingProvider
 
 class RetrievedChunk:
     def __init__(self, text: str, metadata: dict, score: float):
@@ -15,7 +15,7 @@ class RetrievedChunk:
 class KnowledgeRetriever:
     def __init__(self, db: AsyncSession):
         self.db = db
-        self.embedding_provider = OpenAIEmbeddingProvider()
+        self.embedding_provider = GeminiEmbeddingProvider()
 
     async def search(
         self, 

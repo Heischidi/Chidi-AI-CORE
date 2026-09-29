@@ -65,8 +65,8 @@ class KnowledgeChunk(Base):
     text_content = Column(Text, nullable=False)
     chunk_index = Column(Integer, nullable=False)
     
-    # OpenAI text-embedding-3-small uses 1536 dimensions
-    embedding = Column(Vector(1536), nullable=True)
+    # Gemini text-embedding-004 uses 768 dimensions
+    embedding = Column(Vector(768), nullable=True)
     
     metadata_json = Column(JSON, nullable=True) # E.g., {"url": "...", "page_num": 1}
     
