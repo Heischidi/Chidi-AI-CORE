@@ -38,7 +38,7 @@ async def add_website(
     await db.refresh(website)
     
     # Run ingestion in background
-    ingestion_service = KnowledgeIngestionService(db)
+    ingestion_service = KnowledgeIngestionService()
     background_tasks.add_task(ingestion_service.ingest_website, website.id)
     
     return website

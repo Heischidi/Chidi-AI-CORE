@@ -13,16 +13,20 @@ from app.services.knowledge.embeddings import GeminiEmbeddingProvider
 logger = logging.getLogger(__name__)
 
 class KnowledgeIngestionService:
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession = None):
         self.db = db
         self.chunker = TextChunker()
         self.embedding_provider = GeminiEmbeddingProvider()
         self.extractor_factory = ExtractorFactory()
 
     async def ingest_website(self, website_id: uuid.UUID):
-        # Fetch website
-        result = await self.db.execute(select(Website).where(Website.id == website_id))
-        website = result.scalar_one_or_none()
+        from app.db.session import async_session_maker
+        
+        async with async_session_maker() as session:
+            self.db = session
+            # Fetch website
+            result = await self.db.execute(select(Website).where(Website.id == website_id))
+            website = result.scalar_one_or_none()
         if not website:
             logger.error(f"Website {website_id} not found")
             return
@@ -89,8 +93,12 @@ class KnowledgeIngestionService:
         await self.db.commit()
 
     async def ingest_document(self, document_id: uuid.UUID, file_content: bytes):
-        result = await self.db.execute(select(Document).where(Document.id == document_id))
-        document = result.scalar_one_or_none()
+        from app.db.session import async_session_maker
+        
+        async with async_session_maker() as session:
+            self.db = session
+            result = await self.db.execute(select(Document).where(Document.id == document_id))
+            document = result.scalar_one_or_none()
         if not document:
             return
 
