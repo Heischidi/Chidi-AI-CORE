@@ -23,7 +23,7 @@ async def add_website(
     result = await db.execute(select(Workspace).limit(1))
     workspace = result.scalar_one_or_none()
     if not workspace:
-        workspace = Workspace(name="Default Workspace")
+        workspace = Workspace(name="Default Workspace", slug="default-workspace")
         db.add(workspace)
         await db.commit()
         await db.refresh(workspace)

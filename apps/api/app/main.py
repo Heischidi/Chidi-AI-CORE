@@ -10,7 +10,7 @@ app = FastAPI(
 # Set all CORS enabled origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Update for production
+    allow_origins=["http://localhost:3000", "https://chidi-ai-core.vercel.app"], # Allow frontend URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
