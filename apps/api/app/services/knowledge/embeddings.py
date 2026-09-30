@@ -12,8 +12,10 @@ class EmbeddingProvider(ABC):
     async def embed_query(self, text: str) -> List[float]:
         pass
 
+from google.genai import types
+
 class GeminiEmbeddingProvider(EmbeddingProvider):
-    def __init__(self, api_key: str = None, model: str = "text-embedding-004"):
+    def __init__(self, api_key: str = None, model: str = "gemini-embedding-2"):
         self.client = genai.Client(api_key=api_key or os.getenv("GEMINI_API_KEY"))
         self.model = model
 
@@ -24,7 +26,8 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         # Batch embedding support using google-genai
         response = self.client.models.embed_content(
             model=self.model,
-            contents=texts
+            contents=texts,
+            config=types.EmbedContentConfig(output_dimensionality=768)
         )
         return [emb.values for emb in response.embeddings]
 
