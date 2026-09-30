@@ -110,10 +110,34 @@ export default function Websites() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-3">
-                      <button className="text-slate-400 hover:text-indigo-600 transition-colors" title="Recrawl">
+                      <button 
+                        className="text-slate-400 hover:text-indigo-600 transition-colors" 
+                        title="Recrawl"
+                        onClick={async () => {
+                          alert("Recrawling will be implemented soon!");
+                        }}
+                      >
                         <RefreshCw className="w-4 h-4" />
                       </button>
-                      <button className="text-slate-400 hover:text-red-600 transition-colors" title="Delete">
+                      <button 
+                        className="text-slate-400 hover:text-red-600 transition-colors" 
+                        title="Delete"
+                        onClick={async () => {
+                          if (confirm("Are you sure you want to delete this website?")) {
+                            try {
+                              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/websites/${site.id}`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': 'Bearer local_dev_token' }
+                              });
+                              if (res.ok) {
+                                fetchWebsites();
+                              }
+                            } catch (e) {
+                              console.error(e);
+                            }
+                          }
+                        }}
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

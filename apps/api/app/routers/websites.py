@@ -54,3 +54,17 @@ async def list_websites(
         return []
     result = await db.execute(select(Website).where(Website.workspace_id == workspace.id))
     return result.scalars().all()
+
+@router.delete("/{website_id}")
+async def delete_website(
+    website_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(Website).where(Website.id == website_id))
+    website = result.scalar_one_or_none()
+    if not website:
+        raise HTTPException(status_code=404, detail="Website not found")
+        
+    await db.delete(website)
+    await db.commit()
+    return {"status": "success"}
