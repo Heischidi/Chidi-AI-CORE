@@ -115,7 +115,11 @@ export default function ChidiWidgetUI({ widgetId }: { widgetId: string }) {
   if (!config) return null;
 
   return (
-    <div className="fixed bottom-0 right-0 w-full h-full flex flex-col items-end justify-end p-4 font-sans pointer-events-none">
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        body { background-color: transparent !important; }
+      `}} />
+      <div className="fixed bottom-0 right-0 w-full h-full flex flex-col items-end justify-end p-4 font-sans pointer-events-none">
       
       {/* Chat Window */}
       {isOpen && (
@@ -202,9 +206,10 @@ export default function ChidiWidgetUI({ widgetId }: { widgetId: string }) {
         className={`pointer-events-auto flex items-center justify-center w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ${isOpen ? "scale-0 opacity-0" : "scale-100 opacity-100"}`}
         style={{ backgroundColor: config.primary_color }}
       >
-        <MessageCircle size={24} className="text-white" />
+        <span className="text-white text-3xl font-bold font-serif leading-none" style={{ marginTop: '2px' }}>C</span>
       </button>
       
     </div>
+    </>
   );
 }
