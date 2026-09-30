@@ -20,7 +20,7 @@ app.add_middleware(
 async def health_check():
     return {"status": "ok", "project": settings.PROJECT_NAME}
 
-from app.routers import auth, workspaces, conversations, websites, documents, public_widget, capabilities, tools, integrations, custom_tools, usage, analytics, plans, voice
+from app.routers import auth, workspaces, conversations, websites, documents, public_widget, capabilities, tools, integrations, custom_tools, usage, analytics, plans, voice, knowledge_base
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 app.include_router(workspaces.router, prefix=f"{settings.API_V1_STR}/workspaces", tags=["workspaces"])
@@ -36,3 +36,4 @@ app.include_router(usage.router, prefix=f"{settings.API_V1_STR}/usage", tags=["u
 app.include_router(analytics.router, prefix=f"{settings.API_V1_STR}/analytics", tags=["analytics"])
 app.include_router(plans.router, prefix=f"{settings.API_V1_STR}/plans", tags=["plans"])
 app.include_router(voice.router, prefix=f"{settings.API_V1_STR}/voice", tags=["voice"])
+app.include_router(knowledge_base.router, prefix=f"{settings.API_V1_STR}/knowledge", tags=["knowledge"])
