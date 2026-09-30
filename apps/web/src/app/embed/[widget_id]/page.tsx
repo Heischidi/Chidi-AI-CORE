@@ -1,5 +1,6 @@
 import ChidiWidgetUI from "@/components/widget/ChidiWidgetUI";
 
-export default function EmbedPage({ params }: { params: { widget_id: string } }) {
-  return <ChidiWidgetUI widgetId={params.widget_id} />;
+export default async function EmbedPage({ params }: { params: Promise<{ widget_id: string }> }) {
+  const { widget_id } = await params;
+  return <ChidiWidgetUI widgetId={widget_id} />;
 }
