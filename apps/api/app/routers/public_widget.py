@@ -63,6 +63,7 @@ async def get_widget_config(public_widget_id: str, db: AsyncSession = Depends(ge
             position="bottom-right",
             welcome_message="Hi! I'm Chidi. I'm ready to answer questions based on the knowledge you just added!",
             suggested_questions=[],
+            avatar_url=None,
             auto_open=False,
             enabled=True
         )
