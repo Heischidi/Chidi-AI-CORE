@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Lynks Homes - Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #ffffff;
+            padding: 20px 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 100px 40px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>Grand Lynks Homes</h2>
+        <nav>
+            <a href="#" style="margin-left: 20px; color: #666; text-decoration: none;">Properties</a>
+            <a href="#" style="margin-left: 20px; color: #666; text-decoration: none;">About</a>
+            <a href="#" style="margin-left: 20px; color: #666; text-decoration: none;">Contact</a>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <h1>Welcome to Your New Home</h1>
+        <p>This is a dummy website to test how the Chidi AI widget looks and feels when it is embedded on a real client's website.</p>
+    </div>
+
+    <div style="padding: 60px 40px; text-align: center;">
+        <h3>Try interacting with the widget in the bottom right corner!</h3>
+        <p style="color: #666;">It is running using the widget.js script injected onto this page.</p>
+    </div>
+
+    <!-- CHIDI AI WIDGET SCRIPT -->
+    <!-- (Normally this uses the live Vercel URL, but for local testing we use localhost:3000) -->
+    <script 
+        src="http://localhost:3000/widget.js" 
+        data-widget-id="default" 
+        defer>
+    </script>
+
+</body>
+</html>

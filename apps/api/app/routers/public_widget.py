@@ -28,6 +28,13 @@ async def get_widget_workspace(
     public_widget_id: str, 
     db: AsyncSession = Depends(get_db)
 ) -> Workspace:
+    if public_widget_id == "default":
+        ws_result = await db.execute(select(Workspace).limit(1))
+        workspace = ws_result.scalar_one_or_none()
+        if not workspace:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        return workspace
+
     result = await db.execute(
         select(WidgetConfig).where(WidgetConfig.public_widget_id == public_widget_id)
     )
@@ -48,6 +55,18 @@ async def get_widget_workspace(
 
 @router.get("/config/{public_widget_id}", response_model=WidgetConfigResponse)
 async def get_widget_config(public_widget_id: str, db: AsyncSession = Depends(get_db)):
+    if public_widget_id == "default":
+        return WidgetConfigResponse(
+            widget_id="default",
+            name="Chidi",
+            primary_color="#4f46e5",
+            position="bottom-right",
+            welcome_message="Hi! I'm Chidi. I'm ready to answer questions based on the knowledge you just added!",
+            suggested_questions=[],
+            auto_open=False,
+            enabled=True
+        )
+
     result = await db.execute(
         select(WidgetConfig).where(WidgetConfig.public_widget_id == public_widget_id)
     )
