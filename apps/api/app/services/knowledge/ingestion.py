@@ -27,55 +27,38 @@ class KnowledgeIngestionService:
             # Fetch website
             result = await self.db.execute(select(Website).where(Website.id == website_id))
             website = result.scalar_one_or_none()
-        if not website:
-            logger.error(f"Website {website_id} not found")
-            return
+            
+            if not website:
+                logger.error(f"Website {website_id} not found")
+                return
 
-        website.status = "CRAWLING"
-        await self.db.commit()
+            website.status = "CRAWLING"
+            await self.db.commit()
 
-        try:
-            crawler = WebsiteCrawler(website.base_url, max_pages=website.max_pages, crawl_depth=website.crawl_depth)
-            crawled_pages = await crawler.crawl()
+            try:
+                crawler = WebsiteCrawler(website.base_url, max_pages=website.max_pages, crawl_depth=website.crawl_depth)
+                crawled_pages = await crawler.crawl()
 
-            # Process pages
-            for page_data in crawled_pages:
-                # Check if page exists
-                page_res = await self.db.execute(
-                    select(WebsitePage).where(WebsitePage.url == page_data.url, WebsitePage.website_id == website.id)
-                )
-                page = page_res.scalar_one_or_none()
-
-                if not page:
-                    page = WebsitePage(
-                        workspace_id=website.workspace_id,
-                        website_id=website.id,
-                        url=page_data.url,
-                        title=page_data.title,
-                        content_hash=page_data.content_hash,
-                        status="INDEXED"
+                # Process pages
+                for page_data in crawled_pages:
+                    # Check if page exists
+                    page_res = await self.db.execute(
+                        select(WebsitePage).where(WebsitePage.url == page_data.url, WebsitePage.website_id == website.id)
                     )
-                    self.db.add(page)
-                    await self.db.commit()
-                    await self.db.refresh(page)
-                    
-                    await self._index_text(
-                        text=page_data.content,
-                        source_type="WEBSITE_PAGE",
-                        source_id=page.id,
-                        workspace_id=website.workspace_id,
-                        metadata={"url": page.url, "title": page.title}
-                    )
-                else:
-                    # If content hash changed, reindex
-                    if page.content_hash != page_data.content_hash:
-                        # Delete old chunks
-                        await self.db.execute(
-                            delete(KnowledgeChunk).where(KnowledgeChunk.source_id == page.id)
+                    page = page_res.scalar_one_or_none()
+
+                    if not page:
+                        page = WebsitePage(
+                            workspace_id=website.workspace_id,
+                            website_id=website.id,
+                            url=page_data.url,
+                            title=page_data.title,
+                            content_hash=page_data.content_hash,
+                            status="INDEXED"
                         )
-                        page.content_hash = page_data.content_hash
-                        page.title = page_data.title
+                        self.db.add(page)
                         await self.db.commit()
+                        await self.db.refresh(page)
                         
                         await self._index_text(
                             text=page_data.content,
@@ -84,13 +67,31 @@ class KnowledgeIngestionService:
                             workspace_id=website.workspace_id,
                             metadata={"url": page.url, "title": page.title}
                         )
+                    else:
+                        # If content hash changed, reindex
+                        if page.content_hash != page_data.content_hash:
+                            # Delete old chunks
+                            await self.db.execute(
+                                delete(KnowledgeChunk).where(KnowledgeChunk.source_id == page.id)
+                            )
+                            page.content_hash = page_data.content_hash
+                            page.title = page_data.title
+                            await self.db.commit()
+                            
+                            await self._index_text(
+                                text=page_data.content,
+                                source_type="WEBSITE_PAGE",
+                                source_id=page.id,
+                                workspace_id=website.workspace_id,
+                                metadata={"url": page.url, "title": page.title}
+                            )
 
-            website.status = "COMPLETED"
-        except Exception as e:
-            logger.error(f"Failed to ingest website {website_id}: {str(e)}")
-            website.status = "FAILED"
-            
-        await self.db.commit()
+                website.status = "COMPLETED"
+            except Exception as e:
+                logger.error(f"Failed to ingest website {website_id}: {str(e)}")
+                website.status = "FAILED"
+                
+            await self.db.commit()
 
     async def ingest_document(self, document_id: uuid.UUID, file_content: bytes):
         from app.db.session import async_session_maker
@@ -99,34 +100,35 @@ class KnowledgeIngestionService:
             self.db = session
             result = await self.db.execute(select(Document).where(Document.id == document_id))
             document = result.scalar_one_or_none()
-        if not document:
-            return
+            
+            if not document:
+                return
 
-        document.status = "PROCESSING"
-        await self.db.commit()
+            document.status = "PROCESSING"
+            await self.db.commit()
 
-        try:
-            extractor = self.extractor_factory.get_extractor(document.file_type)
-            extracted = extractor.extract(BytesIO(file_content))
-            
-            # Delete old chunks if any (for re-processing)
-            await self.db.execute(delete(KnowledgeChunk).where(KnowledgeChunk.source_id == document.id))
-            
-            await self._index_text(
-                text=extracted.content,
-                source_type="DOCUMENT",
-                source_id=document.id,
-                workspace_id=document.workspace_id,
-                metadata={"filename": document.filename}
-            )
-            
-            document.status = "COMPLETED"
-        except Exception as e:
-            logger.error(f"Failed to ingest document {document_id}: {str(e)}")
-            document.status = "FAILED"
-            document.error_message = str(e)
-            
-        await self.db.commit()
+            try:
+                extractor = self.extractor_factory.get_extractor(document.file_type)
+                extracted = extractor.extract(BytesIO(file_content))
+                
+                # Delete old chunks if any (for re-processing)
+                await self.db.execute(delete(KnowledgeChunk).where(KnowledgeChunk.source_id == document.id))
+                
+                await self._index_text(
+                    text=extracted.content,
+                    source_type="DOCUMENT",
+                    source_id=document.id,
+                    workspace_id=document.workspace_id,
+                    metadata={"filename": document.filename}
+                )
+                
+                document.status = "COMPLETED"
+            except Exception as e:
+                logger.error(f"Failed to ingest document {document_id}: {str(e)}")
+                document.status = "FAILED"
+                document.error_message = str(e)
+                
+            await self.db.commit()
 
     async def _index_text(self, text: str, source_type: str, source_id: uuid.UUID, workspace_id: uuid.UUID, metadata: dict):
         chunks = self.chunker.chunk_text(text, base_metadata=metadata)
