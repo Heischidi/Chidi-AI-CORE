@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import PageHeader from '@/components/ui/PageHeader';
 import StatCard from '@/components/ui/StatCard';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -6,18 +8,57 @@ import { MessageCircle, User, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Dashboard() {
+  const [workspaceName, setWorkspaceName] = useState("Loading...");
+  const [conversations, setConversations] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchWorkspace();
+    fetchConversations();
+  }, []);
+
+  const fetchWorkspace = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/workspaces/current`);
+      if (res.ok) {
+        const data = await res.json();
+        setWorkspaceName(data.name);
+      } else {
+        setWorkspaceName("Acme Corp (Default)");
+      }
+    } catch (e) {
+      setWorkspaceName("Acme Corp (Default)");
+    }
+  };
+
+  const fetchConversations = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/conversations/`, {
+        headers: {
+          'Authorization': 'Bearer local_dev_token',
+          'x-workspace-id': 'default'
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setConversations(data.slice(0, 3)); // Only show recent 3
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div>
       <PageHeader 
-        title="Good morning, Acme Corp" 
+        title={`Good morning, ${workspaceName}`} 
         description="Here's what's happening with Chidi." 
       />
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <StatCard title="Conversations" value="1,248" trend="+12% from last week" icon={<MessageCircle className="w-5 h-5" />} />
-        <StatCard title="Messages" value="5,892" trend="+18% from last week" icon={<MessageCircle className="w-5 h-5" />} />
-        <StatCard title="Leads Captured" value="84" trend="+4% from last week" icon={<User className="w-5 h-5" />} />
-        <StatCard title="Knowledge Sources" value="12" icon={<FileText className="w-5 h-5" />} />
+        <StatCard title="Conversations" value={conversations.length.toString()} trend="Just started" icon={<MessageCircle className="w-5 h-5" />} />
+        <StatCard title="Messages" value="-" trend="No data yet" icon={<MessageCircle className="w-5 h-5" />} />
+        <StatCard title="Leads Captured" value="0" trend="No data yet" icon={<User className="w-5 h-5" />} />
+        <StatCard title="Knowledge Sources" value="Active" icon={<FileText className="w-5 h-5" />} />
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -25,15 +66,19 @@ export default function Dashboard() {
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="text-lg font-semibold text-slate-900 mb-4">Recent conversations</h3>
             <div className="space-y-4">
-              {[1,2,3].map(i => (
-                <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+              {conversations.length === 0 ? (
+                <div className="text-slate-400 text-sm p-4 text-center">No conversations yet. Chat with the widget to start!</div>
+              ) : conversations.map((conv, i) => (
+                <div key={conv.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                   <div>
-                    <div className="font-medium text-slate-900">Visitor #{8493 + i}</div>
-                    <div className="text-sm text-slate-500 truncate w-64">&quot;Do you have the black shirt in medium?&quot;</div>
+                    <div className="font-medium text-slate-900">Visitor #{conv.id.split('-')[0]}</div>
+                    <div className="text-sm text-slate-500 truncate w-64">{conv.channel || "Web Chat"}</div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="text-sm text-slate-400">10 mins ago</div>
-                    <StatusBadge status={i === 1 ? "Active" : "Resolved"} />
+                    <div className="text-sm text-slate-400">
+                      {new Date(conv.started_at).toLocaleDateString()}
+                    </div>
+                    <StatusBadge status="Active" />
                   </div>
                 </div>
               ))}
