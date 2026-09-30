@@ -19,6 +19,7 @@ export default function Websites() {
   const [websites, setWebsites] = useState<Website[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [recrawling, setRecrawling] = useState<string | null>(null);
 
   const fetchWebsites = async () => {
     try {
@@ -40,6 +41,14 @@ export default function Websites() {
   useEffect(() => {
     fetchWebsites();
   }, []);
+
+  // Auto-poll while any site is pending/crawling
+  useEffect(() => {
+    const hasActive = websites.some(w => w.status === 'PENDING' || w.status === 'CRAWLING');
+    if (!hasActive) return;
+    const interval = setInterval(fetchWebsites, 5000);
+    return () => clearInterval(interval);
+  }, [websites]);
   return (
     <div>
       <PageHeader 
@@ -111,10 +120,27 @@ export default function Websites() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-3">
                       <button 
-                        className="text-slate-400 hover:text-indigo-600 transition-colors" 
+                        className={`transition-colors ${recrawling === site.id ? 'text-indigo-400 animate-spin' : 'text-slate-400 hover:text-indigo-600'}`}
                         title="Recrawl"
+                        disabled={recrawling === site.id}
                         onClick={async () => {
-                          alert("Recrawling will be implemented soon!");
+                          setRecrawling(site.id);
+                          try {
+                            const res = await fetch(
+                              `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/websites/${site.id}/recrawl`,
+                              { method: 'POST', headers: { 'Authorization': 'Bearer local_dev_token' } }
+                            );
+                            if (res.ok) {
+                              fetchWebsites();
+                            } else {
+                              alert('Failed to trigger recrawl. Please try again.');
+                            }
+                          } catch (e) {
+                            console.error(e);
+                            alert('Network error. Please try again.');
+                          } finally {
+                            setRecrawling(null);
+                          }
                         }}
                       >
                         <RefreshCw className="w-4 h-4" />

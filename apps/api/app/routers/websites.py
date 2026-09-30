@@ -68,3 +68,25 @@ async def delete_website(
     await db.delete(website)
     await db.commit()
     return {"status": "success"}
+
+@router.post("/{website_id}/recrawl", response_model=WebsiteResponse)
+async def recrawl_website(
+    website_id: uuid.UUID,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(Website).where(Website.id == website_id))
+    website = result.scalar_one_or_none()
+    if not website:
+        raise HTTPException(status_code=404, detail="Website not found")
+    
+    # Reset status so frontend shows it's working
+    website.status = "PENDING"
+    await db.commit()
+    await db.refresh(website)
+    
+    # Queue fresh ingestion
+    ingestion_service = KnowledgeIngestionService()
+    background_tasks.add_task(ingestion_service.ingest_website, website.id)
+    
+    return website
