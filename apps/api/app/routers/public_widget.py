@@ -59,7 +59,7 @@ async def get_widget_config(public_widget_id: str, db: AsyncSession = Depends(ge
         return WidgetConfigResponse(
             widget_id="default",
             name="Chidi",
-            primary_color="#4f46e5",
+            primary_color="#10b981",
             position="bottom-right",
             welcome_message="Hi! I'm Chidi. I'm ready to answer questions based on the knowledge you just added!",
             suggested_questions=[],
