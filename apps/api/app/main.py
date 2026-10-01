@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from app.config import settings
 
 app = FastAPI(
@@ -7,11 +9,25 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-# Set all CORS enabled origins
+# Widget routes must work from ANY external domain (they are public embeds).
+# This raw middleware ensures CORS headers are ALWAYS present, even on 500 errors,
+# which is critical because FastAPI's CORSMiddleware strips headers from error responses.
+class AlwaysCORSMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        if request.url.path.startswith("/api/v1/widget"):
+            response.headers["Access-Control-Allow-Origin"] = "*"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+            response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
+
+app.add_middleware(AlwaysCORSMiddleware)
+
+# Standard CORS for dashboard/auth routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://chidi-ai-core.vercel.app"], # Allow frontend URLs
-    allow_credentials=True,
+    allow_origins=["http://localhost:3000", "https://chidi-ai-core.vercel.app", "*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

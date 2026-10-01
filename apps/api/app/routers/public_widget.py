@@ -95,18 +95,19 @@ async def create_public_conversation(
     workspace: Workspace = Depends(get_widget_workspace),
     db: AsyncSession = Depends(get_db)
 ):
-    # This automatically associates the conversation ONLY with the resolved workspace.
-    # We also track it as a WIDGET channel.
-    service = ConversationService(db)
-    conv = await service.create_conversation(workspace_id=workspace.id, channel="WIDGET")
-    
-    # In a real implementation, we'd store the anonymous visitor_id in metadata_json
-    if req.visitor_id:
-        conv.metadata_json = {"visitor_id": req.visitor_id}
-        await db.commit()
-        await db.refresh(conv)
+    try:
+        service = ConversationService(db)
+        conv = await service.create_conversation(workspace_id=workspace.id, channel="WIDGET")
         
-    return conv
+        if req.visitor_id:
+            conv.metadata_json = {"visitor_id": req.visitor_id}
+            await db.commit()
+            await db.refresh(conv)
+            
+        return conv
+    except Exception as e:
+        import traceback
+        raise HTTPException(status_code=500, detail={"error": str(e), "traceback": traceback.format_exc()})
 
 @router.get("/{public_widget_id}/conversations/{conversation_id}/messages", response_model=List[MessageResponse], dependencies=[Depends(check_rate_limit)])
 async def list_public_messages(
