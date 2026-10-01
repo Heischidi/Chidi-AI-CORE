@@ -23,7 +23,7 @@ class GeminiProvider(AIProvider):
             # Simple conversion, ignoring tool calls for now to get a baseline
             parts = []
             if msg.content:
-                parts.append(types.Part.from_text(msg.content))
+                parts.append(types.Part.from_text(text=msg.content))
                 
             if parts:
                 contents.append(types.Content(role=role, parts=parts))
