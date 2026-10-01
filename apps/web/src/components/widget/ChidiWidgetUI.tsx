@@ -84,27 +84,67 @@ export default function ChidiWidgetUI({ widgetId }: { widgetId: string }) {
         const convRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/widget/${widgetId}/conversations`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}) // visitor_id can be added later
+          body: JSON.stringify({})
         });
         const convData = await convRes.json();
         currentConvId = convData.id;
         setConversationId(currentConvId);
       }
 
-      // Send message via stream (using SSE)
+      // Try streaming first (SSE)
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/widget/${widgetId}/conversations/${currentConvId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, stream: false }) // Fallback to non-streaming for simplicity in this demo, can enhance with SSE EventSource later
+        body: JSON.stringify({ message: text, stream: true })
       });
-      
-      const assistantData = await res.json();
-      setMessages((prev) => [...prev, assistantData]);
+
+      if (!res.ok || !res.body) {
+        // Fallback: if streaming failed, try non-streaming
+        const res2 = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/widget/${widgetId}/conversations/${currentConvId}/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text, stream: false })
+        });
+        const assistantData = await res2.json();
+        setMessages((prev) => [...prev, { id: assistantData.id || Date.now().toString(), role: "ASSISTANT", content: assistantData.content }]);
+        return;
+      }
+
+      // Stream the response word by word
+      const streamMsgId = `stream-${Date.now()}`;
+      setMessages((prev) => [...prev, { id: streamMsgId, role: "ASSISTANT", content: "" }]);
+      setIsTyping(false);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const chunk = line.slice(6); // Remove "data: " prefix
+            if (chunk && chunk !== "[DONE]") {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === streamMsgId ? { ...m, content: m.content + chunk } : m
+                )
+              );
+            }
+          }
+        }
+      }
     } catch (e) {
       console.error(e);
       setMessages((prev) => [
         ...prev,
-        { id: "error", role: "ASSISTANT", content: "I'm having trouble connecting right now. Please try again in a moment." }
+        { id: "error-" + Date.now(), role: "ASSISTANT", content: "I'm having trouble connecting right now. Please try again in a moment." }
       ]);
     } finally {
       setIsTyping(false);

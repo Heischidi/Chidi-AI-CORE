@@ -4,6 +4,7 @@ from google.genai import types
 import os
 import asyncio
 import logging
+from functools import partial
 
 from app.ai.providers.base import AIProvider, ChatMessage, AIResponse, AIResponseChunk
 
@@ -41,13 +42,18 @@ class GeminiProvider(AIProvider):
         return contents
 
     def _try_generate(self, model: str, contents, config) -> AIResponse:
-        """Attempt generation with a specific model."""
+        """Attempt generation with a specific model (runs in thread pool)."""
         response = self.client.models.generate_content(
             model=model,
             contents=contents,
             config=config
         )
         return AIResponse(content=response.text or "", tool_calls=None)
+
+    async def _try_generate_async(self, model: str, contents, config) -> AIResponse:
+        """Run the blocking SDK call in a thread pool so we don't block the event loop."""
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, partial(self._try_generate, model, contents, config))
 
     async def generate(
         self,
@@ -74,7 +80,7 @@ class GeminiProvider(AIProvider):
             for attempt in range(3):  # 3 retries per model
                 try:
                     logger.info(f"Trying model {model}, attempt {attempt + 1}")
-                    return self._try_generate(model, contents, config)
+                    return await self._try_generate_async(model, contents, config)
                 except Exception as e:
                     error_str = str(e)
                     # 503 = overloaded, retry with backoff
