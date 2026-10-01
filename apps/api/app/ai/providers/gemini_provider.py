@@ -10,7 +10,7 @@ class GeminiProvider(AIProvider):
     Provider for Google Gemini models.
     """
     
-    def __init__(self, api_key: str = None, model: str = "gemini-3.8-flash"):
+    def __init__(self, api_key: str = None, model: str = "gemini-2.0-flash"):
         key = api_key or os.getenv("GEMINI_API_KEY")
         self.client = genai.Client(api_key=key)
         self.model = model
