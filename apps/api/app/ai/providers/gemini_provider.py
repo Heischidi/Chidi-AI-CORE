@@ -13,16 +13,19 @@ logger = logging.getLogger(__name__)
 class GeminiProvider(AIProvider):
     """
     Provider for Google Gemini models.
+    Rate limits (free tier):
+      - gemini-3.1-flash-lite: 500 RPD, 15 RPM  ← primary (most headroom)
+      - gemini-3.6-flash:       20 RPD,  5 RPM  ← fallback
+      - gemini-3.8-flash:       20 RPD,  5 RPM  ← last resort
     """
     
-    # Only gemini-3.8-flash is confirmed available for this API key.
-    # Other model names (gemini-2.5-flash, gemini-1.5-flash-latest) return 404.
-    # When overloaded (503), we retry with backoff up to 5 times.
     MODEL_FALLBACKS = [
-        "gemini-3.8-flash",
+        "gemini-3.1-flash-lite",  # 500/day - primary choice
+        "gemini-3.6-flash",       # 20/day  - fallback
+        "gemini-3.8-flash",       # 20/day  - last resort
     ]
     
-    def __init__(self, api_key: str = None, model: str = "gemini-3.8-flash"):
+    def __init__(self, api_key: str = None, model: str = "gemini-3.1-flash-lite"):
         key = api_key or os.getenv("GEMINI_API_KEY")
         self.client = genai.Client(api_key=key)
         self.model = model
