@@ -118,27 +118,43 @@ export default function ChidiWidgetUI({ widgetId }: { widgetId: string }) {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let gotContent = false;
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || ""; // Keep incomplete line in buffer
 
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const chunk = line.slice(6); // Remove "data: " prefix
-            if (chunk && chunk !== "[DONE]") {
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === streamMsgId ? { ...m, content: m.content + chunk } : m
-                )
-              );
+        // SSE events are separated by double newlines
+        const events = buffer.split("\n\n");
+        buffer = events.pop() || ""; // Keep last incomplete event in buffer
+
+        for (const event of events) {
+          // Each event may have multiple lines; find the data line
+          for (const line of event.split("\n")) {
+            if (line.startsWith("data: ")) {
+              const chunk = line.slice(6).trim();
+              if (chunk && chunk !== "[DONE]") {
+                gotContent = true;
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === streamMsgId ? { ...m, content: m.content + chunk } : m
+                  )
+                );
+              }
             }
           }
         }
+      }
+
+      // If stream ended with no content, remove the empty bubble and show error
+      if (!gotContent) {
+        setMessages((prev) => prev.filter((m) => m.id !== streamMsgId));
+        setMessages((prev) => [
+          ...prev,
+          { id: "error-" + Date.now(), role: "ASSISTANT", content: "I'm having trouble connecting right now. Please try again in a moment." }
+        ]);
       }
     } catch (e) {
       console.error(e);
