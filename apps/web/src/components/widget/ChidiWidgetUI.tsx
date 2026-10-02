@@ -91,71 +91,26 @@ export default function ChidiWidgetUI({ widgetId }: { widgetId: string }) {
         setConversationId(currentConvId);
       }
 
-      // Try streaming first (SSE)
+      // Send message (non-streaming with retry logic on backend)
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/widget/${widgetId}/conversations/${currentConvId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, stream: true })
+        body: JSON.stringify({ message: text, stream: false })
       });
 
-      if (!res.ok || !res.body) {
-        // Fallback: if streaming failed, try non-streaming
-        const res2 = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/widget/${widgetId}/conversations/${currentConvId}/messages`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, stream: false })
-        });
-        const assistantData = await res2.json();
-        setMessages((prev) => [...prev, { id: assistantData.id || Date.now().toString(), role: "ASSISTANT", content: assistantData.content }]);
-        return;
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
       }
 
-      // Stream the response word by word
-      const streamMsgId = `stream-${Date.now()}`;
-      setMessages((prev) => [...prev, { id: streamMsgId, role: "ASSISTANT", content: "" }]);
-      setIsTyping(false);
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let gotContent = false;
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        // SSE events are separated by double newlines
-        const events = buffer.split("\n\n");
-        buffer = events.pop() || ""; // Keep last incomplete event in buffer
-
-        for (const event of events) {
-          // Each event may have multiple lines; find the data line
-          for (const line of event.split("\n")) {
-            if (line.startsWith("data: ")) {
-              const chunk = line.slice(6).trim();
-              if (chunk && chunk !== "[DONE]") {
-                gotContent = true;
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === streamMsgId ? { ...m, content: m.content + chunk } : m
-                  )
-                );
-              }
-            }
-          }
+      const assistantData = await res.json();
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantData.id || `msg-${Date.now()}`,
+          role: "ASSISTANT",
+          content: assistantData.content
         }
-      }
-
-      // If stream ended with no content, remove the empty bubble and show error
-      if (!gotContent) {
-        setMessages((prev) => prev.filter((m) => m.id !== streamMsgId));
-        setMessages((prev) => [
-          ...prev,
-          { id: "error-" + Date.now(), role: "ASSISTANT", content: "I'm having trouble connecting right now. Please try again in a moment." }
-        ]);
-      }
+      ]);
     } catch (e) {
       console.error(e);
       setMessages((prev) => [
