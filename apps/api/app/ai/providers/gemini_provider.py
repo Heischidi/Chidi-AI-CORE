@@ -15,11 +15,11 @@ class GeminiProvider(AIProvider):
     Provider for Google Gemini models.
     """
     
-    # Model priority list: try each in order on failure
+    # Only gemini-3.8-flash is confirmed available for this API key.
+    # Other model names (gemini-2.5-flash, gemini-1.5-flash-latest) return 404.
+    # When overloaded (503), we retry with backoff up to 5 times.
     MODEL_FALLBACKS = [
         "gemini-3.8-flash",
-        "gemini-2.5-flash",
-        "gemini-1.5-flash-latest",
     ]
     
     def __init__(self, api_key: str = None, model: str = "gemini-3.8-flash"):
@@ -77,16 +77,16 @@ class GeminiProvider(AIProvider):
         last_error = None
         
         for model in models_to_try:
-            for attempt in range(3):  # 3 retries per model
+            for attempt in range(5):  # 5 retries: waits 1s, 2s, 4s, 8s, 16s
                 try:
                     logger.info(f"Trying model {model}, attempt {attempt + 1}")
                     return await self._try_generate_async(model, contents, config)
                 except Exception as e:
                     error_str = str(e)
-                    # 503 = overloaded, retry with backoff
+                    # 503 = overloaded, retry with longer backoff
                     if "503" in error_str or "UNAVAILABLE" in error_str:
-                        wait = 2 ** attempt  # 1s, 2s, 4s
-                        logger.warning(f"Model {model} overloaded (503), waiting {wait}s...")
+                        wait = 2 ** attempt  # 1, 2, 4, 8, 16 seconds
+                        logger.warning(f"Model {model} overloaded (503), waiting {wait}s... (attempt {attempt+1}/5)")
                         await asyncio.sleep(wait)
                         last_error = e
                         continue
@@ -94,7 +94,7 @@ class GeminiProvider(AIProvider):
                     elif "404" in error_str or "NOT_FOUND" in error_str:
                         logger.warning(f"Model {model} not found (404), trying next model...")
                         last_error = e
-                        break  # break inner retry loop, try next model
+                        break
                     else:
                         raise  # re-raise unexpected errors immediately
         
