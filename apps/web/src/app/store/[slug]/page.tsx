@@ -168,7 +168,7 @@ export default function HostedStorefrontPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Brand Logo Symbol */}
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-950 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+            <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-emerald-600 to-emerald-950 flex items-center justify-center text-white font-bold text-lg shadow-sm">
               {storeData.storefront.name.charAt(0)}
             </div>
             <div>
@@ -190,8 +190,8 @@ export default function HostedStorefrontPage() {
       </header>
 
       {/* Hero Announcement Banner */}
-      <section className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-[#07110D] text-white py-14 px-4 sm:px-6 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#00E676_1px,transparent_1px)] [background-size:16px_16px]" />
+      <section className="bg-linear-to-r from-emerald-950 via-emerald-900 to-[#07110D] text-white py-14 px-4 sm:px-6 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#00E676_1px,transparent_1px)] bg-size-[16px_16px]" />
         <div className="max-w-7xl mx-auto relative z-10 flex flex-col items-center text-center space-y-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold tracking-wider uppercase border border-emerald-500/30">
             Official Storefront

@@ -26,12 +26,66 @@ const HOW_IT_WORKS = [
 ];
 
 const PLANS = [
-  { name: "Starter",    price: "Free",       period: "",       highlight: false,
-    features: ["1 workspace", "500 AI messages / month", "1 knowledge source", "Web widget", "Basic analytics"] },
-  { name: "Growth",     price: "NGN 15,000", period: "/month", highlight: true,
-    features: ["3 workspaces", "10,000 AI messages / month", "Unlimited knowledge", "Product catalogue", "Lead capture & appointments", "Priority support"] },
-  { name: "Enterprise", price: "Custom",     period: "",       highlight: false,
-    features: ["Unlimited workspaces", "Unlimited AI messages", "Custom AI model", "WhatsApp integration", "Dedicated onboarding", "SLA & audit logs"] },
+  {
+    name: "Starter",
+    priceMonthly: "₦0",
+    priceAnnual: "₦0",
+    period: "Free 14-day trial",
+    badge: "Boutique Trial",
+    highlight: false,
+    description: "Ideal for emerging boutiques testing AI customer styling.",
+    features: [
+      "1 Brand workspace",
+      "500 AI styling messages / month",
+      "1 Knowledge source (Website or PDF)",
+      "Neural web shopping widget",
+      "Real-time sizing and fit guidance",
+      "Basic visitor conversion analytics",
+      "Community & email support"
+    ],
+    cta: "Start Free Trial"
+  },
+  {
+    name: "Growth",
+    priceMonthly: "₦45,000",
+    priceAnnual: "₦36,000",
+    period: "/month",
+    savings: "Save ₦108,000 /yr",
+    badge: "Most Popular in Nigeria",
+    highlight: true,
+    description: "For scaling fashion brands selling across Web & WhatsApp.",
+    features: [
+      "3 Brand workspaces",
+      "10,000 AI styling messages / month",
+      "Full fashion catalogue & variants (SKUs)",
+      "AI Personal Stylist & Size Recommendation",
+      "Official WhatsApp Cloud API webhook",
+      "Hosted brand storefront (chidi.store/brand)",
+      "Paystack & Flutterwave checkout links",
+      "Priority Nigerian WhatsApp & email support"
+    ],
+    cta: "Initialize Growth Plan"
+  },
+  {
+    name: "Enterprise",
+    priceMonthly: "₦120,000",
+    priceAnnual: "₦96,000",
+    period: "/month",
+    savings: "Save ₦288,000 /yr",
+    badge: "Luxury Houses & Maisons",
+    highlight: false,
+    description: "For luxury fashion houses, multi-store retailers & ateliers.",
+    features: [
+      "Unlimited brand workspaces",
+      "Unlimited AI styling messages",
+      "Custom brand voice fine-tuning",
+      "Custom bespoke size & fit chart rules",
+      "Multi-currency conversion (₦ NGN, $ USD, £ GBP)",
+      "Dedicated WhatsApp phone number routing",
+      "Direct technical onboarding & 99.9% SLA"
+    ],
+    cta: "Contact Enterprise Sales"
+  },
 ];
 
 const FAQS = [
@@ -225,6 +279,8 @@ function ChatDemo() {
 // ── Landing Page ──────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
+  const [annualBilling, setAnnualBilling] = useState(false);
+
   return (
     <div className="min-h-screen font-sans overflow-x-hidden"
       style={{ background:"var(--chidi-midnight)", color:"#e2f0e8" }}>
@@ -409,52 +465,161 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section id="pricing" className="relative z-10 py-24 px-6" style={{ background:"#0a1610" }}>
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16 animate-fade-up">
-            <h2 className="text-4xl font-bold text-white mb-4">Simple, transparent pricing</h2>
-            <p className="text-lg" style={{ color:"var(--chidi-slate)" }}>Start free. Scale as you grow.</p>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12 animate-fade-up">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider mb-3"
+              style={{ background:"rgba(0,230,118,0.08)", border:"1px solid rgba(0,230,118,0.25)", color:"#00E676" }}>
+              <span className="w-2 h-2 rounded-full bg-[#00E676] animate-ping" />
+              Transparent Nigerian Commerce Pricing
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">Invest in Autonomous AI Sales</h2>
+            <p className="text-lg max-w-2xl mx-auto" style={{ color:"var(--chidi-slate)" }}>
+              No hidden fees. Native Naira checkout via Paystack or direct bank transfer.
+            </p>
+
+            {/* Billing Toggle */}
+            <div className="mt-8 inline-flex items-center gap-3 p-1.5 rounded-full"
+              style={{ background:"#111A16", border:"1px solid #1f3328" }}>
+              <button
+                type="button"
+                onClick={() => setAnnualBilling(false)}
+                className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer"
+                style={!annualBilling
+                  ? { background:"linear-gradient(135deg, #00E676, #00A86B)", color:"#07110D", boxShadow:"0 0 16px rgba(0,230,118,0.25)" }
+                  : { color:"#b7d9c4", background:"transparent" }}>
+                Monthly Billing
+              </button>
+              <button
+                type="button"
+                onClick={() => setAnnualBilling(true)}
+                className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2 cursor-pointer"
+                style={annualBilling
+                  ? { background:"linear-gradient(135deg, #00E676, #00A86B)", color:"#07110D", boxShadow:"0 0 16px rgba(0,230,118,0.25)" }
+                  : { color:"#b7d9c4", background:"transparent" }}>
+                <span>Annual Billing</span>
+                <span className="text-[11px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider"
+                  style={annualBilling ? { background:"#07110D", color:"#00E676" } : { background:"rgba(0,230,118,0.15)", color:"#00E676" }}>
+                  Save 20%
+                </span>
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {PLANS.map((plan,i) => (
-              <div key={i} className="p-6 rounded-2xl flex flex-col animate-fade-up"
-                style={plan.highlight
-                  ? { background:"linear-gradient(135deg, #064E3B, #0a2218)", border:"1px solid rgba(0,230,118,0.4)", boxShadow:"0 0 40px rgba(0,230,118,0.12)", animationDelay:i*0.1+"s" }
-                  : { background:"#111A16", border:"1px solid #1f3328", animationDelay:i*0.1+"s" }}>
-                {plan.highlight && (
-                  <div className="inline-flex items-center gap-1 mb-4">
-                    <Star className="w-3.5 h-3.5" style={{ color:"#00E676" }}/>
-                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color:"#00E676" }}>Most popular</span>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+            {PLANS.map((plan, i) => {
+              const currentPrice = annualBilling ? plan.priceAnnual : plan.priceMonthly;
+              return (
+                <div key={i} className="p-8 rounded-3xl flex flex-col justify-between transition-all duration-300 relative group animate-fade-up"
+                  style={plan.highlight
+                    ? {
+                        background:"linear-gradient(135deg, #064E3B, #0a2218)",
+                        border:"1px solid rgba(0,230,118,0.45)",
+                        boxShadow:"0 0 50px rgba(0,230,118,0.18)",
+                        transform: "scale(1.02)",
+                        animationDelay: i*0.1+"s"
+                      }
+                    : {
+                        background:"#111A16",
+                        border:"1px solid #1f3328",
+                        animationDelay: i*0.1+"s"
+                      }}>
+                  {plan.highlight && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                      <span className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg"
+                        style={{ background:"#00E676", color:"#07110D" }}>
+                        <Star className="w-3.5 h-3.5 fill-current" />
+                        {plan.badge}
+                      </span>
+                    </div>
+                  )}
+
+                  <div>
+                    {!plan.highlight && (
+                      <span className="inline-block text-xs font-mono uppercase tracking-wider px-2.5 py-1 rounded-md mb-3"
+                        style={{ background:"rgba(0,230,118,0.06)", color:"#8aab98", border:"1px solid #1f3328" }}>
+                        {plan.badge}
+                      </span>
+                    )}
+
+                    <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                    <p className="text-sm mb-6 min-h-10" style={{ color:"var(--chidi-slate)" }}>{plan.description}</p>
+
+                    <div className="mb-6 pb-6" style={{ borderBottom:"1px solid rgba(0,230,118,0.12)" }}>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">{currentPrice}</span>
+                        <span className="text-sm font-medium" style={{ color:"var(--chidi-slate)" }}>{plan.period}</span>
+                      </div>
+                      {annualBilling && plan.savings && (
+                        <p className="text-xs font-semibold mt-1 text-[#00E676]">{plan.savings}</p>
+                      )}
+                    </div>
+
+                    <ul className="space-y-3.5 mb-8">
+                      {plan.features.map((f, j) => (
+                        <li key={j} className="flex items-start gap-3 text-sm" style={{ color:"#d1fae5" }}>
+                          <Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color:"#00E676" }}/>
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                )}
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold text-white mb-2">{plan.name}</h3>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-black text-white">{plan.price}</span>
-                    {plan.period && <span className="text-sm" style={{ color:"var(--chidi-slate)" }}>{plan.period}</span>}
+
+                  <div>
+                    <Link href="/signup"
+                      className="w-full py-3.5 rounded-xl text-sm font-bold text-center transition-all duration-200 block shadow-md cursor-pointer"
+                      style={plan.highlight
+                        ? { background:"linear-gradient(135deg, #00E676, #00A86B)", color:"#07110D", boxShadow:"0 0 24px rgba(0,230,118,0.35)" }
+                        : { border:"1px solid rgba(0,230,118,0.3)", color:"#00E676", background:"rgba(0,230,118,0.03)" }}
+                      onMouseEnter={e => {
+                        if (!plan.highlight) {
+                          e.currentTarget.style.background = "rgba(0,230,118,0.12)";
+                          e.currentTarget.style.borderColor = "rgba(0,230,118,0.6)";
+                        }
+                      }}
+                      onMouseLeave={e => {
+                        if (!plan.highlight) {
+                          e.currentTarget.style.background = "rgba(0,230,118,0.03)";
+                          e.currentTarget.style.borderColor = "rgba(0,230,118,0.3)";
+                        }
+                      }}>
+                      {plan.cta}
+                    </Link>
+                    <p className="text-center text-[11px] mt-2.5 font-mono" style={{ color:"#64746B" }}>
+                      Instant activation · 14-day risk-free
+                    </p>
                   </div>
                 </div>
-                <ul className="space-y-3 mb-8 flex-1">
-                  {plan.features.map((f,j) => (
-                    <li key={j} className="flex items-start gap-2.5 text-sm" style={{ color:"#b7d9c4" }}>
-                      <Check className="w-4 h-4 mt-0.5 shrink-0" style={{ color:"#00E676" }}/>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/signup"
-                  className="w-full py-3 rounded-xl text-sm font-semibold text-center transition-all block"
-                  style={plan.highlight
-                    ? { background:"linear-gradient(135deg, #00E676, #00A86B)", color:"#07110D" }
-                    : { border:"1px solid rgba(0,230,118,0.3)", color:"#00E676" }}
-                  onMouseEnter={e => !plan.highlight && (e.currentTarget.style.background="rgba(0,230,118,0.06)")}
-                  onMouseLeave={e => !plan.highlight && (e.currentTarget.style.background="transparent")}>
-                  {plan.price==="Free" ? "Start free" : plan.price==="Custom" ? "Contact us" : "Get started"}
-                </Link>
+              );
+            })}
+          </div>
+
+          {/* Nigerian Payment Reassurance Banner */}
+          <div className="mt-14 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left animate-fade-up"
+            style={{ background:"#111A16", border:"1px solid #1f3328" }}>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background:"rgba(0,230,118,0.1)", border:"1px solid rgba(0,230,118,0.25)" }}>
+                <Shield className="w-6 h-6 text-[#00E676]" />
               </div>
-            ))}
+              <div>
+                <h4 className="text-white font-bold text-base">Local Nigerian Payment Methods Supported</h4>
+                <p className="text-sm mt-0.5" style={{ color:"var(--chidi-slate)" }}>
+                  Seamlessly pay in Naira via Paystack, Flutterwave, Naira Mastercard, Visa, Verve, USSD, or Bank Transfer.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {["Paystack Verified", "Flutterwave", "Naira Debit Cards", "Bank Transfer"].map((badge, idx) => (
+                <span key={idx} className="px-3 py-1 rounded-lg text-xs font-mono font-medium"
+                  style={{ background:"#07110D", border:"1px solid #1f3328", color:"#b7d9c4" }}>
+                  {badge}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
+
 
       {/* FAQ */}
       <section id="faq" className="relative z-10 py-24 px-6">

@@ -9,31 +9,63 @@ interface StatCardProps {
   highlight?: boolean;
 }
 
-export default function StatCard({ title, value, icon, trend, trendUp = true, highlight = false }: StatCardProps) {
+export default function StatCard({
+  title,
+  value,
+  icon,
+  trend,
+  trendUp = true,
+  highlight = false,
+}: StatCardProps) {
   return (
     <div
-      className="chidi-card-light p-5 flex flex-col transition-all duration-200 hover:-translate-y-0.5"
-      style={highlight ? { borderColor: 'rgba(0,168,107,0.3)', boxShadow: '0 0 16px rgba(0,230,118,0.08)' } : {}}
+      className="p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group"
+      style={
+        highlight
+          ? {
+              background: 'linear-gradient(135deg, rgba(6, 78, 59, 0.4), #111A16)',
+              border: '1px solid rgba(0, 230, 118, 0.4)',
+              boxShadow: '0 0 24px rgba(0, 230, 118, 0.12)',
+            }
+          : {
+              background: '#111A16',
+              border: '1px solid #1f3328',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)',
+            }
+      }
     >
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-xs font-mono font-medium uppercase tracking-wider text-[#8aab98]">
           {title}
         </h3>
         {icon && (
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: 'var(--color-surface-3)', color: 'var(--chidi-emerald)' }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105"
+            style={{
+              background: highlight ? 'rgba(0, 230, 118, 0.15)' : 'rgba(7, 17, 13, 0.8)',
+              border: '1px solid rgba(0, 230, 118, 0.2)',
+              color: '#00E676',
+            }}
           >
             {icon}
           </div>
         )}
       </div>
-      <div className="text-3xl font-bold mt-1" style={{ color: 'var(--color-text)' }}>{value}</div>
-      {trend && (
-        <div className="text-xs mt-2 font-medium" style={{ color: trendUp ? 'var(--chidi-emerald)' : 'var(--color-error)' }}>
-          {trendUp ? '↑' : '↓'} {trend}
+
+      <div>
+        <div className="text-3xl font-black tracking-tight text-white mt-1">
+          {value}
         </div>
-      )}
+        {trend && (
+          <div
+            className="text-xs mt-2.5 font-medium flex items-center gap-1.5"
+            style={{ color: trendUp ? '#00E676' : '#ef4444' }}
+          >
+            <span className="font-bold">{trendUp ? '↑' : '↓'}</span>
+            <span>{trend}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
