@@ -22,9 +22,10 @@ async def test_capability_authorization():
         def scalars(self): return MockScalars(self.items)
 
     # 1. Capability is enabled
-    mock_db.execute.return_value = MockResult([
-        Capability(workspace_id=workspace_id, capability_key="PRICE_NEGOTIATION", enabled=True)
-    ])
+    mock_db.execute.side_effect = [
+        MockResult([Capability(workspace_id=workspace_id, capability_key="PRICE_NEGOTIATION", enabled=True)]),
+        MockResult([])
+    ]
     
     registry = ToolRegistryService(mock_db)
     tools = await registry.get_authorized_tools(workspace_id)
@@ -33,10 +34,14 @@ async def test_capability_authorization():
 
     # 2. Capability is disabled
     # Simulate DB returning empty for enabled==True
-    mock_db.execute.return_value = MockResult([])
+    mock_db.execute.side_effect = [
+        MockResult([]),
+        MockResult([])
+    ]
     
     tools = await registry.get_authorized_tools(workspace_id)
     assert len(tools) == 0
+
 
 @pytest.mark.asyncio
 async def test_tenant_isolation_tools():

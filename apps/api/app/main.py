@@ -15,7 +15,7 @@ app = FastAPI(
 class AlwaysCORSMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
-        if request.url.path.startswith("/api/v1/widget"):
+        if request.url.path.startswith("/api/v1/widget") or "/catalogue/storefront" in request.url.path:
             response.headers["Access-Control-Allow-Origin"] = "*"
             response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
             response.headers["Access-Control-Allow-Headers"] = "*"
@@ -26,17 +26,30 @@ app.add_middleware(AlwaysCORSMiddleware)
 # Standard CORS for dashboard/auth routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://chidi-ai-core.vercel.app", "*"],
-    allow_credentials=False,
+    allow_origins=settings.cors_origins_list + (["*"] if settings.ENVIRONMENT == "development" else []),
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "project": settings.PROJECT_NAME}
+    return {"status": "ok", "project": settings.PROJECT_NAME, "environment": settings.ENVIRONMENT}
 
-from app.routers import auth, workspaces, conversations, websites, documents, public_widget, capabilities, tools, integrations, custom_tools, usage, analytics, plans, voice, knowledge_base
+@app.get("/health/ready")
+async def readiness_check(request: Request):
+    """Container / Kubernetes readiness probe checking database connectivity."""
+    try:
+        from app.db.session import AsyncSessionLocal
+        from sqlalchemy import text
+        async with AsyncSessionLocal() as session:
+            await session.execute(text("SELECT 1"))
+        return {"status": "ready", "database": "connected", "environment": settings.ENVIRONMENT}
+    except Exception as e:
+        return JSONResponse(status_code=503, content={"status": "not_ready", "error": "Database unreachable"})
+
+
+from app.routers import auth, workspaces, conversations, websites, documents, public_widget, capabilities, tools, integrations, custom_tools, usage, analytics, plans, voice, knowledge_base, catalogue, webhooks
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 app.include_router(workspaces.router, prefix=f"{settings.API_V1_STR}/workspaces", tags=["workspaces"])
@@ -53,3 +66,7 @@ app.include_router(analytics.router, prefix=f"{settings.API_V1_STR}/analytics", 
 app.include_router(plans.router, prefix=f"{settings.API_V1_STR}/plans", tags=["plans"])
 app.include_router(voice.router, prefix=f"{settings.API_V1_STR}/voice", tags=["voice"])
 app.include_router(knowledge_base.router, prefix=f"{settings.API_V1_STR}/knowledge", tags=["knowledge"])
+app.include_router(catalogue.router, prefix=f"{settings.API_V1_STR}/catalogue", tags=["catalogue"])
+app.include_router(webhooks.router, prefix=f"{settings.API_V1_STR}/webhooks", tags=["webhooks"])
+
+

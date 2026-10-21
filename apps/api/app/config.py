@@ -17,6 +17,17 @@ class Settings(BaseSettings):
     POSTGRES_PORT: str = "5432"
     POSTGRES_DB: str = "chididb"
     
+    ENVIRONMENT: str = "development"  # "development", "staging", "production"
+    
+    WHATSAPP_APP_SECRET: str | None = None
+    WHATSAPP_VERIFY_TOKEN: str = "chidi_webhook_verify_token"
+    
+    CORS_ORIGINS: str = "http://localhost:3000,https://chidi-ai-core.vercel.app"
+    
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
+
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         if self.DATABASE_URL:
@@ -31,3 +42,4 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
 
 settings = Settings()
+

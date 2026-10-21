@@ -17,8 +17,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login
 async def get_current_user(
     db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme)
 ) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
     if token == "local_dev_token":
-        # Bypass for MVP: Get or create a default user
+        if settings.ENVIRONMENT != "development":
+            raise credentials_exception
+        # Bypass for local development only: Get or create a default user
         result = await db.execute(select(User).limit(1))
         user = result.scalar_one_or_none()
         if not user:
@@ -28,11 +36,6 @@ async def get_current_user(
             await db.refresh(user)
         return user
 
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=["HS256"]
@@ -67,7 +70,11 @@ async def get_current_workspace(
     This workspace object must be used to filter all subsequent DB queries.
     """
     if x_workspace_id == "default":
-        # MVP Bypass: Just get the first workspace
+        if settings.ENVIRONMENT != "development":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Default workspace header is only allowed in local development."
+            )
         ws_result = await db.execute(select(Workspace).limit(1))
         workspace = ws_result.scalar_one_or_none()
         if not workspace:
@@ -79,7 +86,7 @@ async def get_current_workspace(
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid Workspace ID format")
         
-    # Check if user is a member of this workspace
+    # Check if user is an explicit member of this workspace
     stmt = select(WorkspaceMember).where(
         WorkspaceMember.workspace_id == ws_id,
         WorkspaceMember.user_id == current_user.id
@@ -87,15 +94,20 @@ async def get_current_workspace(
     result = await db.execute(stmt)
     membership = result.scalar_one_or_none()
     
-    # MVP Bypass: If we are using local_dev_token, allow access anyway for demo
+    # In local development mode ONLY, allow fallback if no membership is recorded yet
     if not membership:
-        # Check if they are just the first user (MVP hack)
-        user_result = await db.execute(select(User).limit(1))
-        first_user = user_result.scalar_one_or_none()
-        if not first_user or current_user.id != first_user.id:
+        if settings.ENVIRONMENT == "development":
+            user_result = await db.execute(select(User).limit(1))
+            first_user = user_result.scalar_one_or_none()
+            if not first_user or current_user.id != first_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not authorized to access this workspace"
+                )
+        else:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions or workspace not found"
+                detail="Not authorized to access this workspace"
             )
         
     # Get workspace
@@ -106,3 +118,4 @@ async def get_current_workspace(
         raise HTTPException(status_code=404, detail="Workspace not found or inactive")
         
     return workspace
+

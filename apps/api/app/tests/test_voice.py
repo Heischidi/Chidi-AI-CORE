@@ -20,9 +20,11 @@ async def test_voice_service_success():
     workspace_id = uuid.uuid4()
     conversation_id = uuid.uuid4()
     
-    # Mock ConversationService.process_message
-    with patch("app.services.voice.voice_service.ConversationService.process_message", new_callable=AsyncMock) as mock_process:
-        mock_process.return_value = {"content": "Yes, we have medium.", "role": "assistant"}
+    # Mock ConversationService
+    with patch("app.services.voice.voice_service.ConversationService") as mock_conv_cls:
+        mock_instance = MagicMock()
+        mock_instance.process_message = AsyncMock(return_value={"content": "Yes, we have medium.", "role": "assistant"})
+        mock_conv_cls.return_value = mock_instance
         
         service = VoiceService(mock_db, stt, tts, storage)
         
@@ -62,8 +64,10 @@ async def test_voice_service_tts_failure_fallback():
             
     storage = MockLocalAudioStorage()
     
-    with patch("app.services.voice.voice_service.ConversationService.process_message", new_callable=AsyncMock) as mock_process:
-        mock_process.return_value = {"content": "Fallback text.", "role": "assistant"}
+    with patch("app.services.voice.voice_service.ConversationService") as mock_conv_cls:
+        mock_instance = MagicMock()
+        mock_instance.process_message = AsyncMock(return_value={"content": "Fallback text.", "role": "assistant"})
+        mock_conv_cls.return_value = mock_instance
         
         service = VoiceService(mock_db, stt, FailingTTSProvider(), storage)
         
@@ -76,6 +80,7 @@ async def test_voice_service_tts_failure_fallback():
         
         assert result["assistant"]["content"] == "Fallback text."
         assert result["audio"] is None # Fallback triggers None audio
+
 
 @pytest.mark.asyncio
 @patch("app.routers.voice.EntitlementService.check_capability")

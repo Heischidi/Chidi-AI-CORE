@@ -106,8 +106,9 @@ async def create_public_conversation(
             
         return conv
     except Exception as e:
-        import traceback
-        raise HTTPException(status_code=500, detail={"error": str(e), "traceback": traceback.format_exc()})
+        import logging
+        logging.getLogger("chidi.widget").error("Failed to create public conversation: %s", str(e), exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to initialize conversation")
 
 @router.get("/{public_widget_id}/conversations/{conversation_id}/messages", response_model=List[MessageResponse], dependencies=[Depends(check_rate_limit)])
 async def list_public_messages(
@@ -164,9 +165,9 @@ async def send_public_message(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        import traceback
-        error_details = {
-            "error": str(e),
-            "traceback": traceback.format_exc()
-        }
-        raise HTTPException(status_code=500, detail=error_details)
+        import logging
+        logging.getLogger("chidi.widget").error("Error in send_public_message: %s", str(e), exc_info=True)
+        if settings.ENVIRONMENT == "development":
+            raise HTTPException(status_code=500, detail={"error": str(e)})
+        raise HTTPException(status_code=500, detail="An error occurred while generating a response. Please try again.")
+

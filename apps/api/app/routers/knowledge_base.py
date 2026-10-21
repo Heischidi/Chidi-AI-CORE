@@ -12,14 +12,9 @@ router = APIRouter()
 
 @router.get("/summary")
 async def get_knowledge_summary(
+    workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db)
 ):
-    # Bypass auth for now - get default workspace
-    result = await db.execute(select(Workspace).limit(1))
-    workspace = result.scalar_one_or_none()
-    if not workspace:
-        return {"pages": [], "documents": []}
-        
     pages_res = await db.execute(
         select(WebsitePage)
         .where(WebsitePage.workspace_id == workspace.id)
@@ -33,11 +28,15 @@ async def get_knowledge_summary(
     )
     docs = docs_res.scalars().all()
     
-    # Let's count chunks for each
+    # Count chunks per source safely with bound parameters
     chunks_count = {}
-    chunks_res = await db.execute(text(f"SELECT source_id, COUNT(*) FROM knowledge_chunks WHERE workspace_id = '{workspace.id}' GROUP BY source_id"))
+    chunks_res = await db.execute(
+        text("SELECT source_id, COUNT(*) FROM knowledge_chunks WHERE workspace_id = :ws_id GROUP BY source_id"),
+        {"ws_id": workspace.id}
+    )
     for row in chunks_res.fetchall():
         chunks_count[str(row[0])] = row[1]
+
     
     formatted_pages = [
         {

@@ -10,6 +10,7 @@ from app.models.knowledge import Website
 from app.schemas.knowledge import WebsiteCreate, WebsiteResponse
 from app.dependencies import get_current_workspace
 from app.services.knowledge.ingestion import KnowledgeIngestionService
+from app.services.security import is_safe_url
 
 router = APIRouter()
 
@@ -17,16 +18,15 @@ router = APIRouter()
 async def add_website(
     website_in: WebsiteCreate,
     background_tasks: BackgroundTasks,
+    workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db)
 ):
-    # Bypass auth for now - get or create default workspace
-    result = await db.execute(select(Workspace).limit(1))
-    workspace = result.scalar_one_or_none()
-    if not workspace:
-        workspace = Workspace(name="Default Workspace", slug="default-workspace")
-        db.add(workspace)
-        await db.commit()
-        await db.refresh(workspace)
+    if not is_safe_url(website_in.base_url):
+        raise HTTPException(
+            status_code=400,
+            detail="The provided URL is invalid or points to a restricted internal/loopback address."
+        )
+
     website = Website(
         workspace_id=workspace.id,
         base_url=website_in.base_url,
@@ -38,29 +38,33 @@ async def add_website(
     await db.refresh(website)
     
     # Run ingestion in background
-    ingestion_service = KnowledgeIngestionService()
+    ingestion_service = KnowledgeIngestionService(db)
     background_tasks.add_task(ingestion_service.ingest_website, website.id)
     
     return website
 
 @router.get("/", response_model=List[WebsiteResponse])
 async def list_websites(
+    workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db)
 ):
-    # Bypass auth for now - get default workspace
-    result = await db.execute(select(Workspace).limit(1))
-    workspace = result.scalar_one_or_none()
-    if not workspace:
-        return []
-    result = await db.execute(select(Website).where(Website.workspace_id == workspace.id))
+    result = await db.execute(
+        select(Website).where(Website.workspace_id == workspace.id)
+    )
     return result.scalars().all()
 
 @router.delete("/{website_id}")
 async def delete_website(
     website_id: uuid.UUID,
+    workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db)
 ):
-    result = await db.execute(select(Website).where(Website.id == website_id))
+    result = await db.execute(
+        select(Website).where(
+            Website.id == website_id,
+            Website.workspace_id == workspace.id
+        )
+    )
     website = result.scalar_one_or_none()
     if not website:
         raise HTTPException(status_code=404, detail="Website not found")
@@ -73,12 +77,21 @@ async def delete_website(
 async def recrawl_website(
     website_id: uuid.UUID,
     background_tasks: BackgroundTasks,
+    workspace: Workspace = Depends(get_current_workspace),
     db: AsyncSession = Depends(get_db)
 ):
-    result = await db.execute(select(Website).where(Website.id == website_id))
+    result = await db.execute(
+        select(Website).where(
+            Website.id == website_id,
+            Website.workspace_id == workspace.id
+        )
+    )
     website = result.scalar_one_or_none()
     if not website:
         raise HTTPException(status_code=404, detail="Website not found")
+
+    if not is_safe_url(website.base_url):
+        raise HTTPException(status_code=400, detail="Website base URL is no longer valid or safe.")
     
     # Reset status so frontend shows it's working
     website.status = "PENDING"
@@ -86,7 +99,7 @@ async def recrawl_website(
     await db.refresh(website)
     
     # Queue fresh ingestion
-    ingestion_service = KnowledgeIngestionService()
+    ingestion_service = KnowledgeIngestionService(db)
     background_tasks.add_task(ingestion_service.ingest_website, website.id)
     
     return website

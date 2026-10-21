@@ -14,17 +14,10 @@ router = APIRouter()
 
 @router.get("/current", response_model=WorkspaceResponse)
 async def get_current_active_workspace(
-    db: AsyncSession = Depends(get_db)
+    workspace: Workspace = Depends(get_current_workspace)
 ):
-    # Bypass auth for MVP - get or create default workspace
-    result = await db.execute(select(Workspace).limit(1))
-    workspace = result.scalar_one_or_none()
-    if not workspace:
-        workspace = Workspace(name="Grand Lynks Homes", slug="grand-lynks-homes")
-        db.add(workspace)
-        await db.commit()
-        await db.refresh(workspace)
     return workspace
+
 
 @router.post("/", response_model=WorkspaceResponse)
 async def create_workspace(
