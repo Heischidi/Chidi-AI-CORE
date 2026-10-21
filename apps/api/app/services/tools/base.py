@@ -1,18 +1,16 @@
 import uuid
 from typing import Any, Dict, Optional
 from abc import ABC, abstractmethod
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
 
 class ToolContext(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     workspace_id: uuid.UUID
     conversation_id: uuid.UUID
-    
-    # Internal DB session injected by the registry/agent loop, not exposed to LLM
-    class Config:
-        arbitrary_types_allowed = True
-    
     db: Optional[Any] = None
+
 
 class ToolResult(BaseModel):
     success: bool

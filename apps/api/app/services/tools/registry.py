@@ -5,6 +5,8 @@ from sqlalchemy import select
 from app.services.tools.base import BaseTool, ToolContext, ToolResult
 from app.services.tools.price_negotiation import PriceNegotiationTool
 from app.services.tools.product_search import ProductSearchTool
+from app.services.tools.fashion_stylist import FashionStylistTool
+from app.services.tools.size_fit_assistant import SizeFitAssistantTool
 from app.services.tools.order_tracking import OrderTrackingTool
 from app.services.tools.appointment_booking import AppointmentBookingTool
 from app.services.tools.lead_capture import LeadCaptureTool
@@ -20,6 +22,8 @@ class ToolRegistryService:
         self._available_tools: Dict[str, Type[BaseTool]] = {
             PriceNegotiationTool.name: PriceNegotiationTool,
             ProductSearchTool.name: ProductSearchTool,
+            FashionStylistTool.name: FashionStylistTool,
+            SizeFitAssistantTool.name: SizeFitAssistantTool,
             OrderTrackingTool.name: OrderTrackingTool,
             AppointmentBookingTool.name: AppointmentBookingTool,
             LeadCaptureTool.name: LeadCaptureTool,
@@ -46,6 +50,10 @@ class ToolRegistryService:
             authorized.append(PriceNegotiationTool())
         if "PRODUCT_SEARCH" in cap_keys:
             authorized.append(ProductSearchTool())
+        if "FASHION_STYLING" in cap_keys or "PRODUCT_SEARCH" in cap_keys:
+            authorized.append(FashionStylistTool())
+        if "SIZE_FIT_GUIDANCE" in cap_keys or "PRODUCT_SEARCH" in cap_keys:
+            authorized.append(SizeFitAssistantTool())
         if "ORDER_TRACKING" in cap_keys:
             authorized.append(OrderTrackingTool())
         if "APPOINTMENT_BOOKING" in cap_keys:

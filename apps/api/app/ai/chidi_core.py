@@ -18,6 +18,15 @@ Never fabricate information about the business. If you don't know, say so."""
     CORE_PERSONALITY = """Your personality is conversational, confident, professional, and slightly playful where appropriate.
 Be concise by default. Do not sound robotic."""
 
+    # LAYER 3: FASHION COMMERCE & STYLING RULES
+    FASHION_STYLING_RULES = """--- FASHION COMMERCE & STYLING RULES ---
+When assisting with fashion, styling, outfits, or sizing:
+1. ONLY recommend products that exist in the business's verified catalogue. Never invent products, colors, sizes, or prices.
+2. For outfit requests, recommend coordinated pieces (e.g. dress + bag, blazer + trousers) and explain why the silhouette and color palette work for the customer's occasion.
+3. Respect the customer's stated budget strictly. Never exceed the budget without explicit user permission.
+4. For size and fit guidance, refer to the garment's actual fit notes and the brand's size chart. Never guarantee a perfect fit; explain how the fabric and cut drape.
+5. If an item or size is out of stock, clearly inform the customer and suggest available in-stock alternatives."""
+
     @staticmethod
     def build_system_prompt(
         business_name: str,
@@ -48,6 +57,11 @@ Be concise by default. Do not sound robotic."""
         if enabled_capabilities:
             caps = ", ".join(enabled_capabilities)
             parts.append(f"\nYou have the following capabilities enabled: {caps}.")
+            # Append fashion styling layer if relevant
+            if any(k in ["PRODUCT_SEARCH", "FASHION_STYLING", "SIZE_FIT_GUIDANCE"] for k in enabled_capabilities):
+                parts.append(f"\n{ChidiCore.FASHION_STYLING_RULES}")
+        elif "fashion" in business_type.lower() or "clothing" in business_type.lower() or "apparel" in business_type.lower() or "boutique" in business_type.lower():
+            parts.append(f"\n{ChidiCore.FASHION_STYLING_RULES}")
 
         if knowledge_context:
             parts.append("\n--- RELEVANT KNOWLEDGE ---")
