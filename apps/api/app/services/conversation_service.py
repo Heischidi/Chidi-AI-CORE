@@ -21,7 +21,23 @@ class ConversationService:
         self.db.add(conv)
         await self.db.commit()
         await self.db.refresh(conv)
+
+        # Track conversation start event
+        try:
+            from app.services.analytics import AnalyticsService
+            analytics = AnalyticsService(self.db)
+            await analytics.record_event(
+                workspace_id=workspace_id,
+                event_type="conversation_started",
+                conversation_id=conv.id,
+                source=channel
+            )
+            await self.db.commit()
+        except Exception:
+            pass
+
         return conv
+
 
     async def process_message(
         self, 
@@ -107,6 +123,7 @@ class ConversationService:
 
         # 6. Agent Loop (Max 5 iterations)
         MAX_ITERATIONS = 5
+        latest_tool_data = {}
         
         for iteration in range(MAX_ITERATIONS):
             if stream and iteration == 0 and not openai_tools: 
@@ -155,7 +172,35 @@ class ConversationService:
                     )
                     
                     tool_result = await registry.execute_tool(tool_ctx, func_name, func_args)
+                    if tool_result.success and tool_result.data:
+                        latest_tool_data[func_name] = tool_result.data
+                        try:
+                            from app.services.analytics import AnalyticsService
+                            analytics = AnalyticsService(self.db)
+                            if func_name == "recommend_fashion_outfit":
+                                recs = tool_result.data.get("outfit_recommendations", [])
+                                p_ids = [p.get("id") for p in recs if p.get("id")]
+                                cats = [p.get("category") for p in recs if p.get("category")]
+                                await analytics.record_event(
+                                    workspace_id=workspace.id,
+                                    event_type="outfit_recommended",
+                                    conversation_id=conversation.id,
+                                    metadata={"product_ids": p_ids, "categories": cats, "count": len(recs)}
+                                )
+                            elif func_name == "get_size_and_fit_guidance":
+                                await analytics.record_event(
+                                    workspace_id=workspace.id,
+                                    event_type="size_guidance_requested",
+                                    conversation_id=conversation.id,
+                                    metadata={
+                                        "product_name": tool_result.data.get("product_name"),
+                                        "recommended_size": tool_result.data.get("recommended_size")
+                                    }
+                                )
+                        except Exception:
+                            pass
                     result_str = json.dumps(tool_result.model_dump())
+
                     
                     # Save tool response
                     tool_msg = Message(
@@ -180,7 +225,8 @@ class ConversationService:
                     conversation_id=conversation.id,
                     workspace_id=workspace.id,
                     role="ASSISTANT",
-                    content=response.content
+                    content=response.content,
+                    metadata_json=latest_tool_data if latest_tool_data else None
                 )
                 self.db.add(assistant_msg)
                 await self.db.commit()
