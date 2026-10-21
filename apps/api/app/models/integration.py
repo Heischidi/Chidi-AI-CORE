@@ -65,3 +65,14 @@ class ActionState(Base):
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class ProcessedWebhookEvent(Base):
+    """Tracks processed external webhook events for durable, concurrency-safe idempotency."""
+    __tablename__ = "processed_webhook_events"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    event_id = Column(String(255), nullable=False, unique=True, index=True)
+    provider = Column(String(50), nullable=False, default="WHATSAPP")
+    workspace_id = Column(UUID(as_uuid=True), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=True, index=True)
+    status = Column(String(50), default="PROCESSED")  # "PROCESSING", "PROCESSED", "FAILED"
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
