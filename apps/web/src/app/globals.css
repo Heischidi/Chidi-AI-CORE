@@ -1,26 +1,238 @@
 @import "tailwindcss";
 
+/* ============================================================
+   CHIDI AI — Neural Green Design Token System
+   Centralised brand colours, animation, and typography.
+   Do NOT hardcode brand colours in individual components.
+   ============================================================ */
+
+/* ---- Brand Colour Tokens ---- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core brand greens */
+  --chidi-neural:    #00E676;   /* Signature luminous emerald — sparingly for highlights */
+  --chidi-emerald:   #00A86B;   /* Primary buttons, active states */
+  --chidi-forest:    #064E3B;   /* Deep green surfaces */
+  --chidi-midnight:  #07110D;   /* Darkest backgrounds */
+  --chidi-graphite:  #111A16;   /* Cards on dark surfaces */
+  --chidi-mint:      #B7F7D4;   /* Soft accent highlights */
+  --chidi-soft:      #F5FBF7;   /* Light theme background */
+  --chidi-slate:     #64746B;   /* Secondary text / muted */
+
+  /* Semantic aliases */
+  --color-brand:         var(--chidi-emerald);
+  --color-brand-glow:    var(--chidi-neural);
+  --color-surface:       #ffffff;
+  --color-surface-2:     #f8fdf9;
+  --color-surface-3:     #eef9f3;
+  --color-border:        #e2f0e8;
+  --color-border-strong: #b7d9c4;
+  --color-text:          #0d1f16;
+  --color-text-muted:    #4a6357;
+  --color-text-faint:    #8aab98;
+
+  /* Dark-mode surface (used in dashboard dark cards) */
+  --color-dark-surface:  var(--chidi-graphite);
+  --color-dark-surface-2:#162319;
+  --color-dark-border:   #1f3328;
+
+  /* Status */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error:   #ef4444;
+  --color-info:    #3b82f6;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'Fira Code', monospace;
 }
 
+/* Tailwind v4 custom theme extension */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-neural:    var(--chidi-neural);
+  --color-emerald:   var(--chidi-emerald);
+  --color-forest:    var(--chidi-forest);
+  --color-midnight:  var(--chidi-midnight);
+  --color-graphite:  var(--chidi-graphite);
+  --color-mint:      var(--chidi-mint);
+  --font-sans:       var(--font-sans);
+  --font-mono:       var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ---- Base Reset ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
 }
+
+/* ---- Neural Green Animations ---- */
+@keyframes neural-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.08); }
+}
+
+@keyframes neural-travel {
+  0%   { stroke-dashoffset: 200; opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { stroke-dashoffset: 0;   opacity: 0; }
+}
+
+@keyframes neural-spark {
+  0%   { opacity: 0; transform: scale(0) translate(0,0); }
+  30%  { opacity: 1; transform: scale(1) translate(var(--sx,4px), var(--sy,-6px)); }
+  100% { opacity: 0; transform: scale(0.4) translate(var(--sx2,8px), var(--sy2,-14px)); }
+}
+
+@keyframes float-brain {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-12px) rotate(1deg); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px 4px rgba(0,230,118,0.15); }
+  50%       { box-shadow: 0 0 40px 12px rgba(0,230,118,0.35); }
+}
+
+@keyframes glow-text {
+  0%, 100% { text-shadow: 0 0 12px rgba(0,230,118,0.4); }
+  50%       { text-shadow: 0 0 28px rgba(0,230,118,0.8); }
+}
+
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40%           { transform: translateY(-6px); opacity: 1; }
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes emerge {
+  0%   { opacity: 0; transform: scale(0.92) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ---- Animation Utility Classes ---- */
+.animate-float-brain     { animation: float-brain 6s ease-in-out infinite; }
+.animate-neural-pulse    { animation: neural-pulse 2s ease-in-out infinite; }
+.animate-glow-pulse      { animation: glow-pulse 3s ease-in-out infinite; }
+.animate-glow-text       { animation: glow-text 3s ease-in-out infinite; }
+.animate-gradient-shift  { animation: gradient-shift 6s ease infinite; background-size: 200% 200%; }
+.animate-fade-up         { animation: fade-up 0.6s ease forwards; }
+.animate-fade-in         { animation: fade-in 0.4s ease forwards; }
+.animate-emerge          { animation: emerge 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+.animate-shimmer         { animation: shimmer 2s linear infinite; }
+.animate-spin-slow       { animation: spin-slow 8s linear infinite; }
+
+/* Stagger delays */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+.delay-700 { animation-delay: 0.7s; }
+.delay-800 { animation-delay: 0.8s; }
+
+/* ---- Reusable Visual Utilities ---- */
+.chidi-glow {
+  box-shadow: 0 0 24px rgba(0, 230, 118, 0.25), 0 0 8px rgba(0, 168, 107, 0.15);
+}
+
+.chidi-glow-strong {
+  box-shadow: 0 0 40px rgba(0, 230, 118, 0.4), 0 0 16px rgba(0, 168, 107, 0.25);
+}
+
+.chidi-border-glow {
+  border: 1px solid rgba(0, 230, 118, 0.3);
+  box-shadow: 0 0 12px rgba(0, 230, 118, 0.1);
+}
+
+.chidi-gradient-text {
+  background: linear-gradient(135deg, #00E676, #00A86B, #B7F7D4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.chidi-gradient-bg {
+  background: linear-gradient(135deg, #00A86B, #064E3B);
+}
+
+.chidi-card-dark {
+  background: var(--chidi-graphite);
+  border: 1px solid var(--color-dark-border);
+  border-radius: 1rem;
+}
+
+.chidi-card-light {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  box-shadow: 0 1px 4px rgba(6, 78, 59, 0.06);
+}
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(90deg, #e8f5ee 25%, #d4ede0 50%, #e8f5ee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+
+/* ---- Reduced Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- Scrollbar Styling (dark surfaces) ---- */
+.dark-scroll::-webkit-scrollbar { width: 6px; }
+.dark-scroll::-webkit-scrollbar-track { background: var(--chidi-graphite); }
+.dark-scroll::-webkit-scrollbar-thumb { background: #1f3328; border-radius: 3px; }
+.dark-scroll::-webkit-scrollbar-thumb:hover { background: #2a4a38; }
+

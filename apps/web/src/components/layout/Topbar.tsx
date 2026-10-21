@@ -3,27 +3,68 @@ import { Bell, Search } from 'lucide-react';
 
 export default function Topbar() {
   return (
-    <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6">
+    <header
+      className="flex h-16 items-center justify-between px-6 shrink-0"
+      style={{
+        background: 'var(--color-surface)',
+        borderBottom: '1px solid var(--color-border)',
+      }}
+    >
+      {/* Search */}
       <div className="flex items-center gap-4 flex-1">
-        <div className="relative w-96 hidden md:block">
+        <div className="relative w-80 hidden md:block">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="h-4 w-4 text-slate-400" />
+            <Search className="h-4 w-4" style={{ color: 'var(--chidi-slate)' }} />
           </div>
           <input
             type="text"
-            className="block w-full rounded-full border-0 py-1.5 pl-10 pr-3 text-slate-900 ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 bg-slate-50"
-            placeholder="Search..."
+            className="block w-full rounded-full py-2 pl-10 pr-4 text-sm transition-all duration-200 outline-none"
+            style={{
+              background: 'var(--color-surface-2)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text)',
+            }}
+            placeholder="Search conversations, products..."
+            onFocus={e => {
+              e.target.style.border = '1px solid var(--chidi-emerald)';
+              e.target.style.boxShadow = '0 0 0 3px rgba(0,168,107,0.1)';
+            }}
+            onBlur={e => {
+              e.target.style.border = '1px solid var(--color-border)';
+              e.target.style.boxShadow = 'none';
+            }}
           />
         </div>
       </div>
-      <div className="flex items-center gap-4">
-        <button className="text-slate-400 hover:text-slate-500">
-          <Bell className="h-5 w-5" />
+
+      {/* Actions */}
+      <div className="flex items-center gap-3">
+        {/* Notification bell */}
+        <button
+          className="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors duration-150"
+          style={{ color: 'var(--chidi-slate)' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-surface-2)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+          aria-label="Notifications"
+        >
+          <Bell className="h-4.5 w-4.5" />
         </button>
-        <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm cursor-pointer border border-indigo-200">
-          WS
+
+        {/* Divider */}
+        <div className="w-px h-6" style={{ background: 'var(--color-border)' }} />
+
+        {/* Avatar */}
+        <div
+          className="h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold cursor-pointer transition-all duration-150 animate-glow-pulse"
+          style={{
+            background: 'linear-gradient(135deg, #00E676, #00A86B)',
+            color: '#07110D',
+          }}
+          title="Your workspace"
+        >
+          C
         </div>
       </div>
     </header>
   );
-}
+}
