@@ -42,7 +42,7 @@ const DEMO_STOREFRONT: StorefrontData = {
   storefront: {
     name: "Aurelia & Co. Atelier",
     slug: "aurelia-atelier",
-    widget_id: "default",
+    widget_id: "aurelia-atelier",
     currency: "NGN",
   },
   categories: ["All", "Dresses", "Outerwear", "Trousers", "Accessories"],
@@ -378,7 +378,7 @@ export default function HostedStorefrontPage() {
       </footer>
 
       {/* Embedded Live Chidi Styling Assistant */}
-      <ChidiWidgetUI widgetId={storeData.storefront.widget_id || "default"} />
+      <ChidiWidgetUI widgetId={storeData.storefront.widget_id || slug || "aurelia-atelier"} />
 
     </div>
   );

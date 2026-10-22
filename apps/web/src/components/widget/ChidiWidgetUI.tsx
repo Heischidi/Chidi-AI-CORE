@@ -195,104 +195,104 @@ export default function ChidiWidgetUI({ widgetId }: { widgetId: string }) {
               metadata: assistantData.metadata_json
             }
           ]);
+          setIsTyping(false);
+          setActivityState("idle");
           return;
         }
       }
 
       // Offline/Local Simulated Intelligent Styling Fallback
-      setTimeout(() => {
-        let simulatedReply = "I looked through our catalogue for you!";
-        let mockMetadata: MessageMetadata = {};
+      await new Promise((resolve) => setTimeout(resolve, 700));
 
-        if (lower.includes("wedding") || lower.includes("cocktail") || lower.includes("outfit")) {
-          simulatedReply = "For a cocktail or wedding guest event, I recommend our signature Emerald Silk Bias Slip Dress paired with the Structured Forest Blazer. The lustrous 19mm mulberry silk drapes effortlessly while the tailored blazer adds refined polish.";
-          mockMetadata = {
-            recommend_fashion_outfit: {
-              occasion: "Cocktail / Wedding Guest",
-              total_price: 120000,
-              currency: "NGN",
-              outfit_recommendations: [
-                {
-                  id: "rec-1",
-                  name: "Emerald Silk Bias Slip Dress",
-                  price: 48000,
-                  previous_price: 60000,
-                  currency: "NGN",
-                  category: "Dresses",
-                  brand: "CHIDI Atelier",
-                  sizes: ["XS", "S", "M", "L"],
-                  colours: ["Emerald Green", "Champagne"],
-                  materials: "100% Mulberry Silk",
-                  fit_notes: "True to size, bias drape skims hips.",
-                  image_url: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&auto=format&fit=crop&q=80",
-                  purchase_url: "https://example.com/shop/emerald-slip",
-                  stock_quantity: 12
-                },
-                {
-                  id: "rec-2",
-                  name: "Structured Forest Blazer",
-                  price: 72000,
-                  currency: "NGN",
-                  category: "Outerwear",
-                  brand: "CHIDI Atelier",
-                  sizes: ["S", "M", "L"],
-                  colours: ["Deep Forest"],
-                  materials: "Virgin Wool & Cashmere blend",
-                  fit_notes: "Tailored relaxed silhouette.",
-                  image_url: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&auto=format&fit=crop&q=80",
-                  purchase_url: "https://example.com/shop/forest-blazer",
-                  stock_quantity: 6
-                }
-              ]
-            }
-          };
-        } else if (lower.includes("size") || lower.includes("fit")) {
-          simulatedReply = "Our garments follow standard UK/European tailoring. The silk bias dresses skim the natural waist and hips with a relaxed drape. Here are the brand's verified size recommendations:";
-          mockMetadata = {
-            get_size_and_fit_guidance: {
-              found: true,
-              product_name: "Emerald Silk Bias Slip Dress",
-              available_sizes: ["XS", "S", "M", "L", "XL"],
-              recommended_size: "M",
-              guidance: "Size M corresponds to Bust 88-92cm and Waist 70-74cm. If you prefer a loose relaxed drape, we recommend sizing up.",
-              fit_notes: "Cut on the bias for fluid ease. Fabric does not have elastane."
-            }
-          };
-        } else {
-          simulatedReply = "Here are our bestselling pieces tailored to your style. Each piece is crafted from premium natural fibres with verified availability:";
-          mockMetadata = {
-            search_products: {
-              products: [
-                {
-                  id: "rec-3",
-                  name: "Pleated Wide-Leg Linen Trouser",
-                  price: 36000,
-                  previous_price: 42000,
-                  currency: "NGN",
-                  category: "Trousers",
-                  sizes: ["XS", "S", "M", "L"],
-                  colours: ["Sage Mist", "Sandstone"],
-                  image_url: "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?w=800&auto=format&fit=crop&q=80",
-                  purchase_url: "https://example.com/shop/linen-trouser",
-                  stock_quantity: 20
-                }
-              ]
-            }
-          };
-        }
+      let simulatedReply = "I looked through our catalogue for you!";
+      let mockMetadata: MessageMetadata = {};
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `msg-${Date.now()}`,
-            role: "ASSISTANT",
-            content: simulatedReply,
-            metadata: mockMetadata
+      if (lower.includes("wedding") || lower.includes("cocktail") || lower.includes("outfit")) {
+        simulatedReply = "For a cocktail or wedding guest event, I recommend our signature Emerald Silk Bias Slip Dress paired with the Structured Forest Blazer. The lustrous 19mm mulberry silk drapes effortlessly while the tailored blazer adds refined polish.";
+        mockMetadata = {
+          recommend_fashion_outfit: {
+            occasion: "Cocktail / Wedding Guest",
+            total_price: 120000,
+            currency: "NGN",
+            outfit_recommendations: [
+              {
+                id: "rec-1",
+                name: "Emerald Silk Bias Slip Dress",
+                price: 48000,
+                previous_price: 60000,
+                currency: "NGN",
+                category: "Dresses",
+                brand: "CHIDI Atelier",
+                sizes: ["XS", "S", "M", "L"],
+                colours: ["Emerald Green", "Champagne"],
+                materials: "100% Mulberry Silk",
+                fit_notes: "True to size, bias drape skims hips.",
+                image_url: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&auto=format&fit=crop&q=80",
+                purchase_url: "https://example.com/shop/emerald-slip",
+                stock_quantity: 12
+              },
+              {
+                id: "rec-2",
+                name: "Structured Forest Blazer",
+                price: 72000,
+                currency: "NGN",
+                category: "Outerwear",
+                brand: "CHIDI Atelier",
+                sizes: ["S", "M", "L"],
+                colours: ["Deep Forest"],
+                materials: "Virgin Wool & Cashmere blend",
+                fit_notes: "Tailored relaxed silhouette.",
+                image_url: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&auto=format&fit=crop&q=80",
+                purchase_url: "https://example.com/shop/forest-blazer",
+                stock_quantity: 6
+              }
+            ]
           }
-        ]);
-        setIsTyping(false);
-        setActivityState("idle");
-      }, 700);
+        };
+      } else if (lower.includes("size") || lower.includes("fit")) {
+        simulatedReply = "Our garments follow standard UK/European tailoring. The silk bias dresses skim the natural waist and hips with a relaxed drape. Here are the brand's verified size recommendations:";
+        mockMetadata = {
+          get_size_and_fit_guidance: {
+            found: true,
+            product_name: "Emerald Silk Bias Slip Dress",
+            available_sizes: ["XS", "S", "M", "L", "XL"],
+            recommended_size: "M",
+            guidance: "Size M corresponds to Bust 88-92cm and Waist 70-74cm. If you prefer a loose relaxed drape, we recommend sizing up.",
+            fit_notes: "Cut on the bias for fluid ease. Fabric does not have elastane."
+          }
+        };
+      } else {
+        simulatedReply = "Here are our bestselling pieces tailored to your style. Each piece is crafted from premium natural fibres with verified availability:";
+        mockMetadata = {
+          search_products: {
+            products: [
+              {
+                id: "rec-3",
+                name: "Pleated Wide-Leg Linen Trouser",
+                price: 36000,
+                previous_price: 42000,
+                currency: "NGN",
+                category: "Trousers",
+                sizes: ["XS", "S", "M", "L"],
+                colours: ["Sage Mist", "Sandstone"],
+                image_url: "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?w=800&auto=format&fit=crop&q=80",
+                purchase_url: "https://example.com/shop/linen-trouser",
+                stock_quantity: 20
+              }
+            ]
+          }
+        };
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `msg-${Date.now()}`,
+          role: "ASSISTANT",
+          content: simulatedReply,
+          metadata: mockMetadata
+        }
+      ]);
 
     } catch (e) {
       setMessages((prev) => [
@@ -304,10 +304,8 @@ export default function ChidiWidgetUI({ widgetId }: { widgetId: string }) {
         }
       ]);
     } finally {
-      if (conversationId) {
-        setIsTyping(false);
-        setActivityState("idle");
-      }
+      setIsTyping(false);
+      setActivityState("idle");
     }
   };
 

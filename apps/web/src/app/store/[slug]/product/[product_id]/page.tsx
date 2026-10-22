@@ -364,7 +364,7 @@ export default function PublicProductDetailPage() {
       )}
 
       {/* Embedded Live Chidi Styling Assistant */}
-      <ChidiWidgetUI widgetId="default" />
+      <ChidiWidgetUI widgetId={slug || "aurelia-atelier"} />
 
     </div>
   );

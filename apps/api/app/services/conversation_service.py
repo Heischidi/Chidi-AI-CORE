@@ -91,16 +91,7 @@ class ConversationService:
         rag_builder = RAGContextBuilder(self.db)
         rag_context = await rag_builder.build(workspace.id, user_content)
 
-        # 5. Build System Prompt (Phase 3 integrates RAG context)
-        system_prompt = ChidiCore.build_system_prompt(
-            business_name=workspace.name,
-            business_type="Business", # Could be fetched from assistant config
-            business_context="We provide services to our customers.",
-            tone="professional and friendly",
-            knowledge_context=rag_context.context_text if rag_context.context_text else None
-        )
-
-        # Fetch Tools
+        # Fetch Tools & Capabilities
         from app.services.tools.registry import ToolRegistryService
         from app.services.tools.base import ToolContext
         import json
@@ -109,9 +100,12 @@ class ConversationService:
         authorized_tools = await registry.get_authorized_tools(workspace.id)
         
         openai_tools = None
+        enabled_caps = []
         if authorized_tools:
             openai_tools = []
             for t in authorized_tools:
+                if hasattr(t, "capability") and t.capability:
+                    enabled_caps.append(t.capability)
                 openai_tools.append({
                     "type": "function",
                     "function": {
@@ -120,6 +114,16 @@ class ConversationService:
                         "parameters": t.input_schema
                     }
                 })
+
+        # 5. Build System Prompt (integrates Fashion Commerce & RAG context)
+        system_prompt = ChidiCore.build_system_prompt(
+            business_name=workspace.name,
+            business_type="Fashion Atelier & Commerce",
+            business_context="We craft contemporary fashion, luxury capsule wardrobes, silk dresses, tailoring, and accessories.",
+            tone="warm, stylish, knowledgeable, and helpful",
+            knowledge_context=rag_context.context_text if rag_context.context_text else None,
+            enabled_capabilities=enabled_caps or ["PRODUCT_SEARCH", "FASHION_STYLING", "SIZE_FIT_GUIDANCE"]
+        )
 
         # 6. Agent Loop (Max 5 iterations)
         MAX_ITERATIONS = 5

@@ -35,57 +35,94 @@ async def get_widget_workspace(
             raise HTTPException(status_code=404, detail="Workspace not found")
         return workspace
 
+    # 1. Match WidgetConfig by public_widget_id
     result = await db.execute(
         select(WidgetConfig).where(WidgetConfig.public_widget_id == public_widget_id)
     )
     widget = result.scalar_one_or_none()
     
-    if not widget:
-        raise HTTPException(status_code=404, detail="Widget not found")
-    if not widget.enabled:
-        raise HTTPException(status_code=403, detail="Widget is disabled")
+    if widget:
+        if not widget.enabled:
+            raise HTTPException(status_code=403, detail="Widget is disabled")
+        ws_result = await db.execute(select(Workspace).where(Workspace.id == widget.workspace_id))
+        workspace = ws_result.scalar_one_or_none()
+        if workspace:
+            return workspace
+
+    # 2. Match Workspace by slug
+    ws_slug_res = await db.execute(select(Workspace).where(Workspace.slug == public_widget_id))
+    workspace = ws_slug_res.scalar_one_or_none()
+    if workspace:
+        return workspace
+
+    # 3. Fallback to default workspace
+    ws_fallback = await db.execute(select(Workspace).limit(1))
+    workspace = ws_fallback.scalar_one_or_none()
+    if workspace:
+        return workspace
         
-    ws_result = await db.execute(select(Workspace).where(Workspace.id == widget.workspace_id))
-    workspace = ws_result.scalar_one_or_none()
-    
-    if not workspace:
-        raise HTTPException(status_code=404, detail="Workspace not found")
-        
-    return workspace
+    raise HTTPException(status_code=404, detail="Workspace not found")
 
 @router.get("/config/{public_widget_id}", response_model=WidgetConfigResponse)
 async def get_widget_config(public_widget_id: str, db: AsyncSession = Depends(get_db)):
-    if public_widget_id == "default":
+    widget = None
+    
+    # 1. Look up widget by public_widget_id
+    if public_widget_id != "default":
+        result = await db.execute(
+            select(WidgetConfig).where(WidgetConfig.public_widget_id == public_widget_id)
+        )
+        widget = result.scalar_one_or_none()
+
+    # 2. Look up widget by workspace slug
+    if not widget and public_widget_id != "default":
+        ws_res = await db.execute(select(Workspace).where(Workspace.slug == public_widget_id))
+        ws = ws_res.scalar_one_or_none()
+        if ws:
+            w_res = await db.execute(select(WidgetConfig).where(WidgetConfig.workspace_id == ws.id))
+            widget = w_res.scalar_one_or_none()
+
+    # 3. Fallback to primary workspace widget config
+    if not widget:
+        ws_res = await db.execute(select(Workspace).limit(1))
+        ws = ws_res.scalar_one_or_none()
+        if ws:
+            w_res = await db.execute(select(WidgetConfig).where(WidgetConfig.workspace_id == ws.id))
+            widget = w_res.scalar_one_or_none()
+
+    if widget and widget.enabled:
         return WidgetConfigResponse(
-            widget_id="default",
+            widget_id=widget.public_widget_id,
             name="Chidi",
-            primary_color="#10b981",
-            position="bottom-right",
-            welcome_message="Hi! I'm Chidi. I'm ready to answer questions based on the knowledge you just added!",
-            suggested_questions=[],
-            avatar_url=None,
-            auto_open=False,
+            primary_color=widget.primary_color or "#00A86B",
+            position=widget.position or "bottom-right",
+            welcome_message=widget.welcome_message or "Hello! I'm Chidi, your personal AI fashion stylist. Tell me about your occasion, size, or style preference and I'll find the perfect look from our catalogue.",
+            suggested_questions=widget.suggested_questions or [
+                "Style an outfit for a wedding guest",
+                "Show me black trousers in size M",
+                "How does the silk slip dress fit?",
+                "What are your newest arrivals?"
+            ],
+            avatar_url=widget.avatar_url,
+            auto_open=widget.auto_open or False,
             enabled=True
         )
 
-    result = await db.execute(
-        select(WidgetConfig).where(WidgetConfig.public_widget_id == public_widget_id)
-    )
-    widget = result.scalar_one_or_none()
-    if not widget or not widget.enabled:
-        raise HTTPException(status_code=404, detail="Widget not found or disabled")
-        
-    # Map to public response (which strictly drops private ids and hardcodes 'name': 'Chidi')
     return WidgetConfigResponse(
-        widget_id=widget.public_widget_id,
+        widget_id=public_widget_id,
         name="Chidi",
-        primary_color=widget.primary_color,
-        position=widget.position,
-        welcome_message=widget.welcome_message,
-        suggested_questions=widget.suggested_questions,
-        avatar_url=widget.avatar_url,
-        auto_open=widget.auto_open,
-        enabled=widget.enabled
+        primary_color="#00A86B",
+        position="bottom-right",
+        welcome_message="Hello! I'm Chidi, your personal AI fashion stylist. Tell me about your occasion, size, or style preference and I'll find the perfect look from our catalogue.",
+        suggested_questions=[
+            "Style an outfit for a wedding guest",
+            "Show me black trousers in size M",
+            "How does the silk slip dress fit?",
+            "What are your newest arrivals?"
+        ],
+        avatar_url=None,
+        auto_open=False,
+        enabled=True
     )
 
 @router.post("/{public_widget_id}/conversations", response_model=ConversationResponse, dependencies=[Depends(check_rate_limit)])
